@@ -1,8 +1,18 @@
+using Neo4j.Berries.OGM;
+using socialweb.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+builder.Services.AddNeo4j<ApplicationGraphContext>(builder.Configuration, options =>
+{
+    options
+        .ConfigureFromAssemblies(typeof(Program).Assembly);
+    options.EnableTimestamps();
+    options.EnforceIdentifiers = true;
+});
 
 
 var app = builder.Build();
