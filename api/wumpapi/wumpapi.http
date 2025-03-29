@@ -1,6 +1,11 @@
 @wumpapi_HostAddress = http://localhost:5034
 
-GET {{wumpapi_HostAddress}}/weatherforecast/
+GET {{wumpapi_HostAddress}}/login/
 Accept: application/json
 
 ###
+GET {{wumpapi_HostAddress}}/logout/
+Accept: application/json
+###
+GET {{wumpapi_HostAddress}}/graph/
+Accept: application/json
