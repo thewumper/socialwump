@@ -25,10 +25,16 @@ app.MapGet("/logout", () =>
     })
     .WithName("logout");
 app.MapGet("/graph", () =>
-{
-    return "graph data or something";
-}).WithName("/graph");
-
-
+    {
+        return "graph data or something";
+    }).WithName("/graph");
+app.MapGet("/createaccount", () =>
+    {
+        return "success or fail";
+    }).WithName("/createaccount");
+app.MapGet("/add", () =>
+    {
+        return "success or fail";
+    }).WithName("/add");
 
 app.Run();
