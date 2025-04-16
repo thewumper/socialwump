@@ -1,6 +1,7 @@
  services:
   neo4j:
     image: neo4j:latest
+    privileged: true
     volumes:
         - ./logs:/logs
         - ./config/:/config
