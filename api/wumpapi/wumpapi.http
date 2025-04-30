@@ -9,3 +9,7 @@ Accept: application/json
 ###
 GET {{wumpapi_HostAddress}}/graph/
 Accept: application/json
+
+###
+GET {{wumpapi_HostAddress}}/addMax/
+Accept: application/json

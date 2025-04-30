@@ -1,8 +1,24 @@
+using Neo4j.Driver;
+using wumpapi.configuration;
+using wumpapi.neo4j;
+using wumpapi.structures;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("ApplicationSettings"));
+var settings = new ApplicationSettings();
+builder.Configuration.GetSection("ApplicationSettings").Bind(settings);
+
+
+
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddSingleton(GraphDatabase.Driver(settings.Neo4jConnection, AuthTokens.Basic(settings.Neo4jUser, settings.Neo4jPassword)));
+builder.Services.AddScoped<INeo4jDataAccess, Neo4jDataAccess>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+
 
 var app = builder.Build();
 
@@ -25,7 +41,7 @@ app.MapGet("/logout", () =>
     })
     .WithName("logout");
 app.MapGet("/graph", () =>
-    {
+{
         return "graph data or something";
     }).WithName("/graph");
 app.MapGet("/createaccount", () =>
@@ -36,5 +52,16 @@ app.MapGet("/add", () =>
     {
         return "success or fail";
     }).WithName("/add");
-
+app.MapGet("/addMax", async (IUserRepository userRepo) =>
+{
+    return await userRepo.AddUser(new User(
+        "MaxMax", 
+        "maxmaxmax", 
+        "maxmaxmaxmax@gmail.com", 
+        "max", 
+        "max"
+    ));
+}).WithName("/addMax");
 app.Run();
+
+
