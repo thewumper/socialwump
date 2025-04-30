@@ -4,7 +4,7 @@ namespace wumpapi.neo4j;
 
 public interface IUserRepository
 { 
-    Task<bool> AddUser(User user);
+    Task<User> AddUser(User user);
     Task<long> GetUserCount();
     Task<List<User>> GetUsers();
 }

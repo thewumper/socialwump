@@ -13,16 +13,17 @@ public class UserRepository : IUserRepository
         this.logger = logger;
     }
     
-    public async Task<bool> AddUser(User user)
+    public async Task<User> AddUser(User user)
     {
-        var query = $"CREATE (u:User {{username: \"{user.Username}\", firstName: \"{user.FirstName}\", lastName: " +
-                    $"\"{user.LastName}\", email: \"{user.Email}\", password: \"{user.Password}\"}})";
-        return await neo4jDataAccess.ExecuteWriteTransactionAsync<bool>(query);
+        var query = $"CREATE (u:User {{Username: \"{user.Username}\", FirstName: \"{user.FirstName}\", LastName: " +
+                    $"\"{user.LastName}\", Email: \"{user.Email}\", Password: \"{user.Password}\"}})"
+                    + "RETURN u";
+        return await neo4jDataAccess.ExecuteWriteTransactionAsync<User>(query);
     }
 
     public async Task<List<Dictionary<string,object>>> FindUsers(String username)
     {
-        var query = $"MATCH (u:User) WHERE toUpper(u.username) CONTAINS toUpper(${username})" +
+        var query = $"MATCH (u:User) WHERE toUpper(u.Username) CONTAINS toUpper(${username})" +
                     $"RETURN u ORDER BY u.Username";
         return await neo4jDataAccess.ExecuteReadDictionaryAsync(query,"u");
     }

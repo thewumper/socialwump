@@ -46,7 +46,7 @@ public class Neo4jDataAccess : INeo4jDataAccess
             {
                 parameters = parameters == null ? new Dictionary<string, object>() : parameters;
 
-                var result = await _session.ReadTransactionAsync(async tx =>
+                var result = await _session.ExecuteReadAsync(async tx =>
                 {
                     T scalar = default(T);
 
@@ -75,7 +75,7 @@ public class Neo4jDataAccess : INeo4jDataAccess
             {
                 parameters = parameters == null ? new Dictionary<string, object>() : parameters;
 
-                var result = await _session.WriteTransactionAsync(async tx =>
+                var result = await _session.ExecuteWriteAsync(async tx =>
                 {
                     T scalar = default(T);
 
@@ -104,7 +104,7 @@ public class Neo4jDataAccess : INeo4jDataAccess
             {                
                 parameters = parameters == null ? new Dictionary<string, object>() : parameters;
 
-                var result = await _session.ReadTransactionAsync(async tx =>
+                var result = await _session.ExecuteReadAsync(async tx =>
                 {
                     var data = new List<T>();
 
