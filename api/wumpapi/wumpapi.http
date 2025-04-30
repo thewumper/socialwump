@@ -13,3 +13,7 @@ Accept: application/json
 ###
 GET {{wumpapi_HostAddress}}/addMax/
 Accept: application/json
+
+###
+GET {{wumpapi_HostAddress}}/maxWantsADummyBecauseHeIsADummy/
+Accept: application/json
