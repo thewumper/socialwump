@@ -13,12 +13,18 @@ public class UserRepository : IUserRepository
         this.logger = logger;
     }
     
-    public async Task<User> AddUser(User user)
+    public async Task<bool> AddUser(User user)
     {
-        var query = $"CREATE (u:User {{Username: \"{user.Username}\", FirstName: \"{user.FirstName}\", LastName: " +
-                    $"\"{user.LastName}\", Email: \"{user.Email}\", Password: \"{user.Password}\"}})"
-                    + "RETURN u";
-        return await neo4jDataAccess.ExecuteWriteTransactionAsync<User>(query);
+        var query = @"CREATE (u:User {Username: $Username, Firstname: $Firstname, Lastname: $Lastname, Email: $Email, Password: $Password}) RETURN true";
+        IDictionary<string, object> parameters = new Dictionary<string, object>()
+        {
+            { "Username", user.Username },
+            { "Firstname", user.FirstName },
+            { "Lastname", user.LastName },
+            { "Email", user.Email },
+            { "Password", user.Password }
+        };
+        return await neo4jDataAccess.ExecuteWriteTransactionAsync<bool>(query,parameters);
     }
 
     public async Task<List<Dictionary<string,object>>> FindUsers(String username)
@@ -34,6 +40,11 @@ public class UserRepository : IUserRepository
     }
 
     public async Task<List<User>> GetUsers()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> UserExists(string requestUsername, string requestEmail)
     {
         throw new NotImplementedException();
     }

@@ -2,10 +2,13 @@ namespace wumpapi.structures;
 
 public class User
 {
-    public User(string username, string password, string email, string firstName, string lastName)
+    public User()
+    {
+        
+    }
+    public User(string username, string email, string firstName, string lastName)
     {
         Username = username;
-        Password = password;
         Email = email;
         FirstName = firstName;
         LastName = lastName;

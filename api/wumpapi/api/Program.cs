@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 using Neo4j.Driver;
 using wumpapi.configuration;
 using wumpapi.neo4j;
@@ -30,28 +32,42 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/login", () =>
-    {
-        return "tokenOrSomething";
-    })
-    .WithName("login");
-app.MapGet("/logout", () =>
-    {
-        return true;
-    })
-    .WithName("logout");
-app.MapGet("/graph", () =>
+app.MapGet("/login", () => {
+  return "tokenOrSomething"; 
+}).WithName("login");
+app.MapGet("/logout", () => {
+  return true;
+}).WithName("logout");
+app.MapGet("/graph", () => {
+  return "graph data or something";
+}).WithName("/graph");
+
+
+
+
+app.MapPost("/createaccount", async (IUserRepository userRepo, IPasswordHasher<User> passwordHasher, CreateUserRequest request) =>
 {
-        return "graph data or something";
-    }).WithName("/graph");
-app.MapGet("/createaccount", () =>
-    {
-        return "success or fail";
-    }).WithName("/createaccount");
+  // Check for existing user
+  if (await userRepo.UserExists(request.Username, request.Email))
+  {
+    return Results.Conflict("Username or email already exists");
+  }
+
+  User user = new User(request.Username, request.Email, request.FirstName, request.LastName);
+  user.Password = passwordHasher.HashPassword(user,request.Password);
+  
+  bool successful = await userRepo.AddUser(user);
+  return successful ? Results.Created() : Results.BadRequest();
+}).WithName("CreateAccount")
+.Produces<User>(StatusCodes.Status201Created)
+.ProducesValidationProblem()
+.Produces(StatusCodes.Status409Conflict);
+
 app.MapGet("/add", () =>
-    {
-        return "success or fail";
-    }).WithName("/add");
+{ 
+  return "success or fail";
+}).WithName("/add");
+
 app.MapGet("/maxWantsADummyBecauseHeIsADummy", () =>
 {
   return """
@@ -151,16 +167,8 @@ app.MapGet("/maxWantsADummyBecauseHeIsADummy", () =>
          }
          """;
 }).WithName("/maxWantsADummyBecauseHeIsADummy");
-app.MapGet("/addMax", async (IUserRepository userRepo) =>
-{
-    return await userRepo.AddUser(new User(
-        "MaxMax", 
-        "maxmaxmax", 
-        "maxmaxmaxmax@gmail.com", 
-        "max", 
-        "max"
-    ));
-}).WithName("/addMax");
+
 app.Run();
 
 
+public record CreateUserRequest([Required] string Username, [Required] string Password, [Required] string FirstName, [Required] string LastName, [Required][EmailAddress] string Email);

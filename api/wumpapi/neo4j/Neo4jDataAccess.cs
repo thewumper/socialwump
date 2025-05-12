@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Options;
 using Neo4j.Driver;
 using wumpapi.configuration;
+using wumpapi.structures;
+using wumpapi.utils;
 
 namespace wumpapi.neo4j;
 
@@ -40,7 +42,7 @@ public class Neo4jDataAccess : INeo4jDataAccess
         /// <summary>
         /// Execute read scalar as an asynchronous operation.
         /// </summary>
-        public async Task<T> ExecuteReadScalarAsync<T>(string query, IDictionary<string, object>? parameters = null)
+        public async Task<T> ExecuteReadScalarAsync<T>(string query, IDictionary<string, object>? parameters = null) 
         {
             try
             {
@@ -69,7 +71,7 @@ public class Neo4jDataAccess : INeo4jDataAccess
         /// <summary>
         /// Execute write transaction
         /// </summary>
-        public async Task<T> ExecuteWriteTransactionAsync<T>(string query, IDictionary<string, object>? parameters = null)
+        public async Task<T> ExecuteWriteTransactionAsync<T>(string query, IDictionary<string, object>? parameters = null) where T : new()
         {
             try
             {
