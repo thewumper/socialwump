@@ -17,3 +17,15 @@ Accept: application/json
 ###
 GET {{wumpapi_HostAddress}}/maxWantsADummyBecauseHeIsADummy/
 Accept: application/json
+
+###
+POST {{wumpapi_HostAddress}}/createaccount/
+Content-Type: application/json
+
+{
+  "Username": "MinimumMaxx",
+  "Password": "Something stupid from one password :/!",
+  "FirstName": "Max",
+  "LastName": "Loseland",
+  "Email": "MinimumMaxx@gmail.com"
+}

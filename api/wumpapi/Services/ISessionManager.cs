@@ -3,7 +3,8 @@ using wumpapi.structures;
 
 public interface ISessionManager
 {
-    Task<Tuple<SessionID,User>> AuthUser(string username, string password);
-    Task<User> GetAuthedUser(SessionID userId);
-    Task<bool> Logout(SessionID userId);
+    Task<Tuple<string,User>> AuthUser(string username, string password);
+    User GetAuthedUser(string userId);
+    bool Logout(string userId);
+    bool IsSessionValid(string userId);
 }

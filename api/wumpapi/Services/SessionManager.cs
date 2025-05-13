@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Neo4j.Driver;
 using wumpapi.neo4j;
 using wumpapi.structures;
 
@@ -11,7 +12,7 @@ public class SessionManager : ISessionManager
     private readonly PasswordHasher<User> passwordHasher;
 
     private Dictionary<SessionID, User> users;
-
+    private Dictionary<string, SessionID> sessions;
     public SessionManager(UserRepository userRepository, PasswordHasher<User> passwordHasher, ILogger<SessionManager> logger)
     {
         this.userRepository = userRepository;
@@ -27,6 +28,7 @@ public class SessionManager : ISessionManager
         if (result == PasswordVerificationResult.Success)
         {
             SessionID sessionId = new SessionID();
+            sessions.Add(sessionId.SSID, sessionId);
             users.Add(sessionId, user);
             return new Tuple<string,User>(sessionId.SSID, user);
         }
@@ -36,23 +38,47 @@ public class SessionManager : ISessionManager
         }
     }
 
-    public async Task<User> GetAuthedUser(string userId)
+    public User GetAuthedUser(string userId)
     {
-        if ()
-        return users[userId];
+        if (sessions.ContainsKey(userId))
+        {
+            SessionID sessionId = sessions[userId];
+            if (sessionId.Expired)
+            {
+                Logout(userId);
+                throw new SessionExpiredException();
+            }
+            User user = users[sessionId];
+            return users[sessions[userId]];
+        }
+        throw new InvalidSessionException();
     }
 
-    public async Task<bool> Logout(string userId)
+    public bool Logout(string userId)
     {
-        throw new NotImplementedException();
+        if (sessions.ContainsKey(userId))
+        {
+            SessionID sessionId = sessions[userId];
+            users.Remove(sessionId);
+            sessions.Remove(userId);
+        }
+        throw new InvalidSessionException();
     }
     
-    public async Task<bool> IsValidAuth(string userId)
+    public bool IsSessionValid(string userId)
     {
-        throw new NotImplementedException();
+        return sessions.ContainsKey(userId);
     }
 }
 
 public class IncorrectPasswordException : Exception
+{
+}
+
+public class InvalidSessionException : Exception
+{
+    
+}
+public class SessionExpiredException : Exception
 {
 }
