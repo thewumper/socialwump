@@ -44,7 +44,18 @@ public class UserRepository : IUserRepository
         throw new NotImplementedException();
     }
 
-    public Task<bool> UserExists(string requestUsername, string requestEmail)
+    public async Task<bool> UserExists(string requestUsername, string requestEmail)
+    {
+        var query = @"RETURN (EXISTS { (:User{Username:$Username}) } OR EXISTS { (:User{Email:$Email}) }) AS Predicate";
+        IDictionary<string, object> parameters = new Dictionary<string, object>()
+        {
+            { "Username", requestUsername },
+            { "Email", requestEmail }
+        };
+        return await neo4jDataAccess.ExecuteReadScalarAsync<bool>(query, parameters);
+    }
+
+    public async Task<User> GetUser(string username)
     {
         throw new NotImplementedException();
     }

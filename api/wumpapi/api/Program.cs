@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Neo4j.Driver;
 using wumpapi.configuration;
 using wumpapi.neo4j;
+using wumpapi.Services;
 using wumpapi.structures;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,9 +20,10 @@ builder.Configuration.GetSection("ApplicationSettings").Bind(settings);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton(GraphDatabase.Driver(settings.Neo4jConnection, AuthTokens.Basic(settings.Neo4jUser, settings.Neo4jPassword)));
+builder.Services.AddSingleton<ISessionManager, SessionManager>();
 builder.Services.AddScoped<INeo4jDataAccess, Neo4jDataAccess>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
-
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 var app = builder.Build();
 
@@ -45,7 +48,7 @@ app.MapGet("/graph", () => {
 
 
 
-app.MapPost("/createaccount", async (IUserRepository userRepo, IPasswordHasher<User> passwordHasher, CreateUserRequest request) =>
+app.MapPost("/createaccount", async (IUserRepository userRepo, IPasswordHasher<User> passwordHasher, [FromBody] CreateUserRequest request) =>
 {
   // Check for existing user
   if (await userRepo.UserExists(request.Username, request.Email))
@@ -172,3 +175,4 @@ app.Run();
 
 
 public record CreateUserRequest([Required] string Username, [Required] string Password, [Required] string FirstName, [Required] string LastName, [Required][EmailAddress] string Email);
+
