@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("wumpapi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+96215515c3cf58315e86db34cac65482d4015458")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+39a47db4e1daa5bc3af172ab75492e4ecae1a3ea")]
 [assembly: System.Reflection.AssemblyProductAttribute("wumpapi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("wumpapi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

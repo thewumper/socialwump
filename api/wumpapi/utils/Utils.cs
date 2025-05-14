@@ -9,7 +9,10 @@ public static class Utils
         foreach (var item in source)
         {
             if (resultType.GetProperty(item.Key) != null)
-                resultType.GetProperty(item.Key)?.SetValue(result, Convert.ChangeType(item.Value, resultType));
+            {
+                var conversionType = resultType.GetProperty(item.Key)?.PropertyType;
+                resultType.GetProperty(item.Key)?.SetValue(result, Convert.ChangeType(item.Value, conversionType));
+            }
             else
                 throw new Exception($"Cannot convert {item.Key} to {resultType}");
         }

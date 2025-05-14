@@ -6,19 +6,19 @@ public class User
     {
         
     }
-    public User(string username, string email, string firstName, string lastName)
+    public User(string username, string email, string firstname, string lastname)
     {
         Username = username;
         Email = email;
-        FirstName = firstName;
-        LastName = lastName;
+        Firstname = firstname;
+        Lastname = lastname;
     }
 
     public string Username { get; set; }
     public string Password { get; set; }
     public string Email { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
+    public string Firstname { get; set; }
+    public string Lastname { get; set; }
 
     private sealed class UserEqualityComparer : IEqualityComparer<User>
     {
@@ -28,12 +28,12 @@ public class User
             if (x is null) return false;
             if (y is null) return false;
             if (x.GetType() != y.GetType()) return false;
-            return x.Username == y.Username && x.Email == y.Email && x.FirstName == y.FirstName && x.LastName == y.LastName;
+            return x.Username == y.Username && x.Email == y.Email && x.Firstname == y.Firstname && x.Lastname == y.Lastname;
         }
 
         public int GetHashCode(User obj)
         {
-            return HashCode.Combine(obj.Username, obj.Email, obj.FirstName, obj.LastName);
+            return HashCode.Combine(obj.Username, obj.Email, obj.Firstname, obj.Lastname);
         }
     }
 

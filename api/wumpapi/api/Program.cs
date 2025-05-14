@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Neo4j.Driver;
@@ -20,10 +21,10 @@ builder.Configuration.GetSection("ApplicationSettings").Bind(settings);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton(GraphDatabase.Driver(settings.Neo4jConnection, AuthTokens.Basic(settings.Neo4jUser, settings.Neo4jPassword)));
-builder.Services.AddSingleton<ISessionManager, SessionManager>();
 builder.Services.AddScoped<INeo4jDataAccess, Neo4jDataAccess>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddSingleton<ISessionManager, SessionManager>();
 
 var app = builder.Build();
 
@@ -35,16 +36,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/login", () => {
-  return "tokenOrSomething"; 
+app.MapPost("/login", () => {
+  
 }).WithName("login");
 app.MapGet("/logout", () => {
   return true;
 }).WithName("logout");
 app.MapGet("/graph", () => {
   return "graph data or something";
-}).WithName("/graph");
-
+}).WithName("graph");
+app.MapGet("/users", async (IUserRepository userRepository) => await userRepository.GetUsers()).WithName("users");
 
 
 
@@ -175,4 +176,4 @@ app.Run();
 
 
 public record CreateUserRequest([Required] string Username, [Required] string Password, [Required] string FirstName, [Required] string LastName, [Required][EmailAddress] string Email);
-
+public record LoginUserRequest([Optional] string Username, [Optional][EmailAddress] string Email, [Required] string Password);

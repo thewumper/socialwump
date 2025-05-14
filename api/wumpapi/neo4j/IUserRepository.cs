@@ -8,5 +8,5 @@ public interface IUserRepository
     Task<long> GetUserCount();
     Task<List<User>> GetUsers();
     Task<bool> UserExists(string requestUsername, string requestEmail);
-    Task<User> GetUser(string username);
+    Task<User> GetUser(string username="",string email="");
 }
