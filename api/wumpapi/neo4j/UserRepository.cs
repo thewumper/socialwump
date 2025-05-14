@@ -63,7 +63,7 @@ public class UserRepository : IUserRepository
         return await neo4jDataAccess.ExecuteReadScalarAsync<bool>(query, parameters);
     }
     // Should this be two functions?
-    public async Task<User> GetUser(string username="", string email="")
+    public async Task<User> GetUser(string username="", string email="",bool includePassword=false)
     {
         if (username == "" && email == "")
         {
@@ -74,7 +74,7 @@ public class UserRepository : IUserRepository
         Dictionary<string,object> parameters;
         if (email == "")
         {
-            query = @"MATCH (u:User) WHERE toUpper(u.Username)=toUpper($Username) RETURN u";
+            query = @"MATCH (u:User) WHERE toUpper(u.Username)=toUpper($Username)";
             parameters = new Dictionary<string, object>()
             {
                 { "Username", username },
@@ -82,7 +82,7 @@ public class UserRepository : IUserRepository
         }
         else if (username == "")
         {
-            query = @"MATCH (u:User) WHERE toUpper(u.Email)=toUpper($Email) RETURN u";
+            query = @"MATCH (u:User) WHERE toUpper(u.Email)=toUpper($Email)";
             parameters = new Dictionary<string, object>()
             {
                 { "Email", email },
@@ -90,13 +90,15 @@ public class UserRepository : IUserRepository
         }
         else
         {
-            query = @"MATCH (u:User) WHERE (toUpper(u.Username)=toUpper($Username)) AND toUpper(u.Email)=toUpper($Email)) RETURN u";
+            query = @"MATCH (u:User) WHERE (toUpper(u.Username)=toUpper($Username)) AND toUpper(u.Email)=toUpper($Email))";
             parameters = new Dictionary<string, object>()
             {
                 { "Username", username },
                 { "Email", email },
             };
         }
+        query +=
+            $" RETURN u {{Username:u.Username, Firstname:u.Firstname, Lastname:u.Lastname, Email:u.Email, {(includePassword ? "Password:u.Password" : "Password:null")}}}";
         return ((await neo4jDataAccess.ExecuteReadDictionaryAsync(query, "u",parameters)).FirstOrDefault() ?? throw new UserNotFoundException()).DictToObject<User>();
 
     }

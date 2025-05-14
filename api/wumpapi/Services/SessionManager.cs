@@ -15,15 +15,18 @@ public class SessionManager : ISessionManager
     {
         this.logger = logger;
         users = new Dictionary<SessionID, User>();
+        sessions = new Dictionary<string, SessionID>();
     }
 
     public async Task<Tuple<string,User>> AuthUser(String username, String password, IUserRepository userRepository, IPasswordHasher<User> passwordHasher)
     {
-        User user = await userRepository.GetUser(username);
+        User user = await userRepository.GetUser(username,includePassword:true);
         PasswordVerificationResult result = passwordHasher.VerifyHashedPassword(user, user.Password, password);
         if (result == PasswordVerificationResult.Success)
         {
+            user.Censor();
             SessionID sessionId = new SessionID();
+            
             sessions.Add(sessionId.SSID, sessionId);
             users.Add(sessionId, user);
             return new Tuple<string,User>(sessionId.SSID, user);

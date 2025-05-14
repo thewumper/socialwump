@@ -17,15 +17,25 @@ Accept: application/json
 ###
 GET {{wumpapi_HostAddress}}/maxWantsADummyBecauseHeIsADummy/
 Accept: application/json
-
+###
+GET {{wumpapi_HostAddress}}/users
+Accept: application/json
 ###
 POST {{wumpapi_HostAddress}}/createaccount/
 Content-Type: application/json
 
 {
-  "Username": "MinimumMaxx",
+  "Username": "MaxiMumMaxx",
   "Password": "Something stupid from one password :/!",
   "FirstName": "Max",
-  "LastName": "Loseland",
-  "Email": "MinimumMaxx@gmail.com"
+  "LastName": "Winland",
+  "Email": "MaxiMumMaxx@gmail.com"
+}
+###
+POST {{wumpapi_HostAddress}}/login
+Content-Type: application/json
+
+{
+  "Username": "MaxiMumMaxx",
+  "Password": "Something stupid from one password :/!"
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Neo4j.Driver;
@@ -36,9 +37,23 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapPost("/login", () => {
-  
-}).WithName("login");
+app.MapPost("/login", async (ISessionManager sessionManager, IUserRepository userRepository, IPasswordHasher<User> passwordHasher,[FromBody] LoginUserRequest loginInfo) => {
+
+  try
+  {
+    Tuple<string, User> sessiondata =
+      await sessionManager.AuthUser(loginInfo.Username, loginInfo.Password, userRepository, passwordHasher);
+    return Results.Ok(new LoginResponse(sessiondata.Item1, sessiondata.Item2));
+  }
+  catch (UserNotFoundException)
+  {
+    return Results.BadRequest(new ErrorResponse("Invalid username or password"));
+  } 
+  catch (IncorrectPasswordException)
+  {
+    return Results.BadRequest(new ErrorResponse("Invalid username or password"));
+  }
+}).WithName("login").Produces<LoginResponse>().Produces<ErrorResponse>(StatusCodes.Status401Unauthorized);
 app.MapGet("/logout", () => {
   return true;
 }).WithName("logout");
@@ -54,18 +69,21 @@ app.MapPost("/createaccount", async (IUserRepository userRepo, IPasswordHasher<U
   // Check for existing user
   if (await userRepo.UserExists(request.Username, request.Email))
   {
-    return Results.Conflict("Username or email already exists");
+    return Results.Conflict(new ErrorResponse("A user with the given username already exists"));
   }
 
   User user = new User(request.Username, request.Email, request.FirstName, request.LastName);
   user.Password = passwordHasher.HashPassword(user,request.Password);
   
   bool successful = await userRepo.AddUser(user);
-  return successful ? Results.Created() : Results.BadRequest();
+  if (!successful)
+  {
+    throw new Exception("Failed to create user");
+  }
+  return Results.Created();
 }).WithName("CreateAccount")
-.Produces<User>(StatusCodes.Status201Created)
-.ProducesValidationProblem()
-.Produces(StatusCodes.Status409Conflict);
+.Produces(StatusCodes.Status201Created)
+.Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
 app.MapGet("/add", () =>
 { 
@@ -177,3 +195,6 @@ app.Run();
 
 public record CreateUserRequest([Required] string Username, [Required] string Password, [Required] string FirstName, [Required] string LastName, [Required][EmailAddress] string Email);
 public record LoginUserRequest([Optional] string Username, [Optional][EmailAddress] string Email, [Required] string Password);
+
+public record LoginResponse(string SessionToken, User user);
+public record ErrorResponse(string message);
