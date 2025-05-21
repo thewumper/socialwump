@@ -1,10 +1,19 @@
 namespace wumpapi.structures;
-
+/// <summary>
+/// This is only used to export a max readable json file
+/// </summary>
 public class Graph
 {
     public GraphNode[] Nodes { get; }
     public GraphLink[] Links { get; }
-
+    
+    // TODO: Fix this it's awful
+    /// <summary>
+    /// Create a max readable graph
+    /// </summary>
+    /// <param name="users">Users in the graph</param>
+    /// <param name="connections">Connections between users</param>
+    /// <exception cref="ArgumentException">If connections reference users that are not provided</exception>
     public Graph(User[] users,Connection[] connections)
     {
         Nodes = new GraphNode[users.Length];
@@ -41,6 +50,17 @@ public class Graph
         }
     }
 }
-
+/// <summary>
+/// Node on a max readable grpah
+/// </summary>
+/// <param name="id">numerical id</param>
+/// <param name="user">refrence to the user it repersents</param>
 public record GraphNode(int id, User user);
+/// <summary>
+/// Link on a max readable grpah
+/// </summary>
+/// <param name="source">id of source node</param>
+/// <param name="target">id of target node</param>
+/// <param name="name">This connections name</param>
+/// <param name="data">Data associated with this connection</param>
 public record GraphLink(int source, int target, string name, string data);

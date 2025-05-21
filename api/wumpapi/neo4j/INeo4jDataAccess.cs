@@ -1,5 +1,7 @@
 namespace wumpapi.neo4j;
-
+/// <summary>
+/// From the neo4j website
+/// </summary>
 public interface INeo4jDataAccess : IAsyncDisposable
 {
     Task<List<string>> ExecuteReadListAsync(string query, string returnObjectKey, IDictionary<string, object>? parameters = null);

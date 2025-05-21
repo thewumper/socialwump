@@ -5,7 +5,9 @@ using wumpapi.structures;
 using wumpapi.utils;
 
 namespace wumpapi.neo4j;
-
+/// <summary>
+/// From the neo4j website
+/// </summary>
 public class Neo4jDataAccess : INeo4jDataAccess
 {
     private IAsyncSession _session;

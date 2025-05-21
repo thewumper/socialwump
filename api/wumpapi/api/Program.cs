@@ -10,6 +10,11 @@ using wumpapi.Services;
 using wumpapi.structures;
 using SessionExpiredException = wumpapi.Services.SessionExpiredException;
 
+// TODO: Top level statements are probably not desired, probably switch to a more oop approach
+
+
+
+// Do basic configuration
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("ApplicationSettings"));
@@ -18,9 +23,7 @@ builder.Configuration.GetSection("ApplicationSettings").Bind(settings);
 
 
 
-
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton(GraphDatabase.Driver(settings.Neo4jConnection, AuthTokens.Basic(settings.Neo4jUser, settings.Neo4jPassword)));
 builder.Services.AddScoped<INeo4jDataAccess, Neo4jDataAccess>();
@@ -28,6 +31,7 @@ builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddSingleton<ISessionManager, SessionManager>();
 
+// Finish the app
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -37,7 +41,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+// setup routes
 app.MapPost("/login", async (ISessionManager sessionManager, IUserRepository userRepository, IPasswordHasher<User> passwordHasher,[FromBody] LoginUserRequest loginInfo) => {
   try
   {
@@ -68,7 +72,7 @@ app.MapPost("/logout", (ISessionManager sessionManager, [FromBody] LogoutRequest
   }
 }).WithName("logout").Produces<Ok>().Produces<ErrorResponse>(StatusCodes.Status401Unauthorized);
 
-
+// TODO: add all the proper codes
 app.MapGet("/graph", (IUserRepository userRepository) =>
 {
   return userRepository.GetGraph();
@@ -128,7 +132,7 @@ app.MapPost("/createRelationship", async (IUserRepository userRepository, ISessi
     return Results.BadRequest(new ErrorResponse("The target user could not be found"));
   }
 }).WithName("CreateRelationship");
-
+// TODO: ask max if I can get rid of this
 app.MapGet("/maxWantsADummyBecauseHeIsADummy", () => """
                                                      {
                                                        "nodes": [
