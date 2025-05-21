@@ -4,19 +4,25 @@ public static class Utils
 {
     public static T DictToObject<T>(this IDictionary<string, object> source) where T : new()
     {
-        var result = new T();
-        Type resultType = typeof(T);
+        return (T) DictToObject(source, typeof(T));
+    }
+
+    private static object DictToObject(this IDictionary<string, object> source, Type targetType)
+    {
+        var result = targetType.GetConstructor(Type.EmptyTypes).Invoke(null);
         foreach (var item in source)
         {
-            if (resultType.GetProperty(item.Key) != null)
+            if (targetType.GetProperty(item.Key) != null)
             {
-                var conversionType = resultType.GetProperty(item.Key)?.PropertyType;
-                resultType.GetProperty(item.Key)?.SetValue(result, Convert.ChangeType(item.Value, conversionType));
+                var conversionType = targetType.GetProperty(item.Key)?.PropertyType;
+                targetType.GetProperty(item.Key)?.SetValue(result,
+                    item.Value is IDictionary<string, object>
+                        ? ((Dictionary<string, object>)item.Value).DictToObject(conversionType)
+                        : Convert.ChangeType(item.Value, conversionType));
             }
             else
-                throw new Exception($"Cannot convert {item.Key} to {resultType}");
+                throw new Exception($"Cannot convert {item.Key} to {targetType}");
         }
-
         return result;
-    } 
+    }
 }

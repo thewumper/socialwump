@@ -1,3 +1,4 @@
+using System.Collections;
 using wumpapi.structures;
 using wumpapi.utils;
 
@@ -46,10 +47,20 @@ public class UserRepository : IUserRepository
         List<User> users = new List<User>();
         foreach (Dictionary<string,object> nodes in await neo4jDataAccess.ExecuteReadDictionaryAsync(query,"n"))
         {
-            logger.LogError(string.Join(",",nodes));
             users.Add(nodes.DictToObject<User>());
         }
         return users;
+    }
+    private async Task<List<Connection>> GetConnections()
+    {
+        var query = @"MATCH (i:User)-[r]->(t:User) RETURN {Initiator: {Firstname: i.Firstname, Email: i.Email, Password: null, Username: i.Username, Lastname: i.Lastname}, Recipient : {Firstname: t.Firstname, Email: t.Email, Password: null, Username: t.Username, Lastname: t.Lastname}, Name:type(r), Data: r.Data} as r ";
+        List<Connection> connections = new List<Connection>();
+        foreach (Dictionary<string,object> relationship in
+                 await neo4jDataAccess.ExecuteReadDictionaryAsync(query, "r"))
+        {
+            connections.Add(relationship.DictToObject<Connection>());
+        }
+        return connections;
     }
 
     public async Task<bool> UserExists(string requestUsername, string requestEmail)
@@ -102,7 +113,32 @@ public class UserRepository : IUserRepository
         return ((await neo4jDataAccess.ExecuteReadDictionaryAsync(query, "u",parameters)).FirstOrDefault() ?? throw new UserNotFoundException()).DictToObject<User>();
 
     }
+    
+    public async Task<bool> CreateRelationship(User initiator, User target, string requestRelationshipName, string requestData)
+    {
+        // TODO: This leaves a security vulnerability but this is just to get things to work (direct replacement)
+        string query = @"MATCH (i:User) WHERE i.Username=$iUsername MATCH (t:User) WHERE t.Username=$tUsername CREATE (i)-[:relation {Data:$data}]->(t) RETURN TRUE";
+        query = query.Replace("relation", requestRelationshipName);
+        IDictionary<string, object> parameters = new Dictionary<string, object>()
+        {
+            { "iUsername", initiator.Username },
+            { "tUsername", target.Username },
+            { "data", requestData }
+        };
+        return await neo4jDataAccess.ExecuteWriteTransactionAsync<bool>(query, parameters);
+    }
+
+    public async Task<Graph> GetGraph()
+    {
+        User[] users = (await GetUsers()).ToArray();
+        Connection[] connections = (await GetConnections()).ToArray();
+        
+        return new Graph(users, connections);
+    }
+
+
 }
+
 
 public class UserNotFoundException : Exception
 {

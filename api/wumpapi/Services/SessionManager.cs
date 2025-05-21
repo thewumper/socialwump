@@ -60,6 +60,7 @@ public class SessionManager : ISessionManager
             SessionID sessionId = sessions[userId];
             users.Remove(sessionId);
             sessions.Remove(userId);
+            return true;
         }
         throw new InvalidSessionException();
     }

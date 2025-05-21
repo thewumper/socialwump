@@ -9,4 +9,6 @@ public interface IUserRepository
     Task<List<User>> GetUsers();
     Task<bool> UserExists(string requestUsername, string requestEmail);
     Task<User> GetUser(string username="",string email="",bool includePassword = false);
+    Task<bool> CreateRelationship(User initiator, User target, string requestRelationshipName, string requestData);
+    Task<Graph> GetGraph();
 }

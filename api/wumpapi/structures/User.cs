@@ -1,3 +1,5 @@
+using wumpapi.neo4j;
+
 namespace wumpapi.structures;
 
 public class User
@@ -20,24 +22,28 @@ public class User
     public string Firstname { get; set; }
     public string Lastname { get; set; }
 
-    private sealed class UserEqualityComparer : IEqualityComparer<User>
+    protected bool Equals(User other)
     {
-        public bool Equals(User? x, User? y)
-        {
-            if (ReferenceEquals(x, y)) return true;
-            if (x is null) return false;
-            if (y is null) return false;
-            if (x.GetType() != y.GetType()) return false;
-            return x.Username == y.Username && x.Email == y.Email && x.Firstname == y.Firstname && x.Lastname == y.Lastname;
-        }
-
-        public int GetHashCode(User obj)
-        {
-            return HashCode.Combine(obj.Username, obj.Email, obj.Firstname, obj.Lastname);
-        }
+        return Username == other.Username;
     }
 
-    public static IEqualityComparer<User> UserComparer { get; } = new UserEqualityComparer();
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((User)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return Username.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        return Username;
+    }
 
     public void Censor()
     {
