@@ -43,6 +43,7 @@ public class Webapp
         builder.Services.AddTransient<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         builder.Services.AddSingleton<ISessionManager, SessionManager>();
+        builder.Services.AddSingleton<IPlayerStats, PlayerStats>();
     }
     
     private void SetupApi()
@@ -66,9 +67,15 @@ public class Webapp
         app.MapPost("/createaccount", CreateAccountHandler).WithName("CreateAccount").Produces(StatusCodes.Status201Created).Produces<ErrorResponse>(StatusCodes.Status409Conflict);
         // TODO: Testing purposes only! Delete this soon
         app.MapPost("/createRelationship", CreateRelationshipHandler).WithName("CreateRelationship");
+        app.MapGet("/getLeaderboard", GetLeaderboardHandler).WithName("GetLeaderboard");
         app.MapGet("/maxWantsADummyBecauseHeIsADummy", TestGraphEndpoint).WithName("/maxWantsADummyBecauseHeIsADummy");
-
     }
+
+    private IResult GetLeaderboardHandler(IPlayerStats playerStats, [FromBody] GetLeaderboardRequest request)
+    {
+        return Enum.TryParse(request.Category, out PlayerStatTypes playerStatType) ? Results.Ok(playerStats.GetLeaderboard(playerStatType)) : Results.BadRequest($"Invalid category, categories are: {string.Join(", ", Enum.GetNames(typeof(PlayerStatTypes)))}");
+    }
+
     public void Start()
     {
         app.Run();
@@ -253,3 +260,5 @@ public class Webapp
         return userRepository.GetGraph();
     }
 }
+
+

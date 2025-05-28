@@ -14,3 +14,4 @@ public record RelationshipCreatedResponse(Connection Connection);
 public record LogoutRequest(string SessionToken);
 
 public record CreateRelationshipRequest(string SessionToken, string TargetUser, string RelationshipName, string Data);
+public record GetLeaderboardRequest(string Category);

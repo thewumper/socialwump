@@ -1,0 +1,23 @@
+using wumpapi.game;
+using wumpapi.neo4j;
+using wumpapi.structures;
+
+namespace wumpapi.Services;
+
+public interface IGameManager
+{
+    public void Startup(INeo4jDataAccess dataAccess);
+    public void AutoSave(INeo4jDataAccess dataAccess);
+    public void Shutdown(INeo4jDataAccess dataAccess);
+    public Game GetActiveGame();
+    public GameState GetGameState();
+    public Player AddPlayer(User user);
+    public void LeavePlayer(User user);
+}
+
+public enum GameState
+{
+    Active,
+    Waiting,
+    Starting,
+}

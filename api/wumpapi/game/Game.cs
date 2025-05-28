@@ -4,5 +4,5 @@ namespace wumpapi.game;
 /// </summary>
 public class Game
 {
-    
+    public Game() {}
 }
