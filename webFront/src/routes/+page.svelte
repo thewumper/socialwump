@@ -1,9 +1,11 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
+	import { fade } from 'svelte/transition';
 
 	let graph;
 	let errored = $state(false);
+	let selectedNode = $state(null);
 	let currentTransform = d3.zoomIdentity;
 
 	onMount(async () => {
@@ -20,6 +22,22 @@
 		const svg = container.append('svg').attr('width', '100%').attr('height', '100%');
 
 		const mainGroup = svg.append('g');
+
+		const crosshairContainer = mainGroup
+			.append('g')
+			.attr('class', 'crosshair')
+			.attr('transform', `translate(0, 0) scale(2.25)`)
+			.style('display', 'none');
+
+		crosshairContainer
+			.append('path')
+			.attr('class', 'crosshair')
+			.style('fill', '#E0E0E0')
+			.attr(
+				'd',
+				`M 22.2448,39.5833L 19,39.5833L 19,36.4167L 22.2448,36.4167C 22.9875,28.9363 28.9363,22.9875 36.4167,22.2448L 36.4167,19L 39.5833,19L 39.5833,22.2448C 47.0637,22.9875 53.0125,28.9363 53.7552,36.4167L 57,36.4167L 57,39.5833L 53.7552,39.5833C 53.0125,47.0637 47.0637,53.0125 39.5833,53.7552L 39.5833,57L 36.4167,57L 36.4167,53.7552C 28.9363,53.0125 22.9875,47.0637 22.2448,39.5833 Z M 25.4313,36.4167L 28.5,36.4167L 28.5,39.5833L 25.4313,39.5833C 26.1458,45.313 30.687,49.8542 36.4167,50.5687L 36.4167,47.5L 39.5833,47.5L 39.5833,50.5687C 45.313,49.8542 49.8542,45.313 50.5686,39.5833L 47.5,39.5833L 47.5,36.4167L 50.5686,36.4167C 49.8542,30.687 45.313,26.1458 39.5833,25.4314L 39.5833,28.5L 36.4167,28.5L 36.4167,25.4314C 30.687,26.1458 26.1458,30.687 25.4313,36.4167 Z `
+			)
+			.attr('transform', 'translate(-38, -38)');
 
 		let data;
 		try {
@@ -51,12 +69,6 @@
 			.attr('class', 'node')
 			.style('stroke', '#aaa');
 
-		var div = d3
-			.select('.wrapper')
-			.insert('div', '.graphContainer')
-			.attr('class', 'tooltip-donut')
-			.style('opacity', 0);
-
 		// Create nodes
 		const node = mainGroup
 			.selectAll('circle')
@@ -68,21 +80,19 @@
 			.on('mouseover', function (event) {
 				let me = d3.select(this);
 
-				me.transition().duration('50').style('fill', '#00796B');
+				me.transition().duration(50).style('fill', '#00796B');
 			})
 			.on('mouseout', function (d, i) {
 				d3.select(this).transition().duration(50).style('fill', '#69b3a2');
 
 				// div.transition().duration(50).style('opacity', 0);
 			})
-			.on('click', function (event) {
-				let me = d3.select(this);
-				div.transition().duration(50).style('opacity', 1);
-				let num = me.datum().name;
-				div
-					.html(num)
-					.style('left', event.clientX + 10 + 'px')
-					.style('top', event.clientY - 15 + 'px');
+			.on('click', function (event, d) {
+				selectedNode = d;
+				crosshairContainer
+					.style('display', 'block') // ensure it's visible
+					.attr('transform', `translate(${event.x}, ${event.y})`)
+					.raise();
 			})
 			.call(drag);
 
@@ -110,6 +120,12 @@
 				.attr('y2', (d) => d.target.y);
 
 			node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
+
+			if (selectedNode) {
+				// Pull the current position data from our normal dataset to set the position of the crosshair
+				const nodeData = data.nodes.find((n) => n.id === selectedNode.id);
+				crosshairContainer.attr('transform', `translate(${nodeData.x}, ${nodeData.y}) scale(2.25)`);
+			}
 		}
 
 		function dragstarted(event, d) {
@@ -138,12 +154,24 @@
 		</div>
 	{/if}
 
+	{#if selectedNode}
+		<div class="tooltip" transition:fade={{ duration: 100 }}>
+			<div class="tooltipWrapper">
+				<button onclick={() => (selectedNode = null)} class="tooltipCloseButton">X</button>
+				<div class="tooltipGrid">
+					<h1 class="tooltipHeader">{selectedNode.name}</h1>
+				</div>
+			</div>
+		</div>
+	{/if}
+
 	<div id="my_dataviz" class="graphContainer"></div>
 </div>
 
 <style>
 	.graphContainer {
 		width: 100vw;
+		pointer-events: all;
 		height: 100vh;
 	}
 
@@ -166,7 +194,8 @@
 		background-color: #212121;
 	}
 
-	:global(div.tooltip-donut) {
+	div.tooltip {
+		pointer-events: all;
 		position: absolute;
 		text-align: center;
 		padding: 0.5rem;
@@ -174,7 +203,44 @@
 		color: #313639;
 		border: 1px solid #313639;
 		border-radius: 8px;
-		pointer-events: none;
 		font-size: 1.3rem;
+		right: 1vw;
+		height: 35vh;
+		bottom: 0;
+		width: 98vw;
+		padding: 3pxu;
+	}
+
+	@media only screen and (min-width: 1024px) {
+		div.tooltip {
+			right: 3px;
+			height: 95vh;
+			top: 2.5vh;
+			width: 20vw;
+		}
+	}
+
+	:global(div.tooltipWrapper) {
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+
+	:global(.tooltipCloseButton) {
+		position: absolute;
+		display: flex;
+		top: 5px;
+		right: 5px;
+		column-count: 4;
+		justify-content: center;
+		border-color: #212121;
+		border-radius: 10px;
+		border-width: 4px;
+		width: 40px;
+		height: 40px;
+	}
+
+	:global(.tooltipCloseButton:hover) {
+		background-color: #757575;
 	}
 </style>
