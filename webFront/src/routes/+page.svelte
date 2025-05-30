@@ -6,10 +6,22 @@
 	let graph;
 	let errored = $state(false);
 	let selectedNode = $state(null);
-	let currentTransform = d3.zoomIdentity;
+
+	let crosshairContainer: d3.Selection<SVGGElement, unknown, HTMLElement, any> | null = null;
+
+	// Change the crosshair display mode when the selected node state changes
+	$effect(() => {
+		const node = selectedNode; // Variable needs to be accessed for the effect to run
+		if (!crosshairContainer) return;
+
+		if (selectedNode) {
+			crosshairContainer.style('display', 'block');
+		} else {
+			crosshairContainer.style('display', 'none');
+		}
+	});
 
 	onMount(async () => {
-		// Make the callback async
 		// Container setup
 		let screenWidth = window.innerWidth;
 		let screenHeight = window.innerHeight;
@@ -18,12 +30,12 @@
 		const container = d3.select('#my_dataviz');
 		container.selectAll('*').remove();
 
-		// Create SVG
+		// Setup the svg and then the render group
 		const svg = container.append('svg').attr('width', '100%').attr('height', '100%');
-
 		const mainGroup = svg.append('g');
 
-		const crosshairContainer = mainGroup
+		// Corsshair setup
+		crosshairContainer = mainGroup
 			.append('g')
 			.attr('class', 'crosshair')
 			.attr('transform', `translate(0, 0) scale(2.25)`)
@@ -37,18 +49,10 @@
 				'd',
 				`M 22.2448,39.5833L 19,39.5833L 19,36.4167L 22.2448,36.4167C 22.9875,28.9363 28.9363,22.9875 36.4167,22.2448L 36.4167,19L 39.5833,19L 39.5833,22.2448C 47.0637,22.9875 53.0125,28.9363 53.7552,36.4167L 57,36.4167L 57,39.5833L 53.7552,39.5833C 53.0125,47.0637 47.0637,53.0125 39.5833,53.7552L 39.5833,57L 36.4167,57L 36.4167,53.7552C 28.9363,53.0125 22.9875,47.0637 22.2448,39.5833 Z M 25.4313,36.4167L 28.5,36.4167L 28.5,39.5833L 25.4313,39.5833C 26.1458,45.313 30.687,49.8542 36.4167,50.5687L 36.4167,47.5L 39.5833,47.5L 39.5833,50.5687C 45.313,49.8542 49.8542,45.313 50.5686,39.5833L 47.5,39.5833L 47.5,36.4167L 50.5686,36.4167C 49.8542,30.687 45.313,26.1458 39.5833,25.4314L 39.5833,28.5L 36.4167,28.5L 36.4167,25.4314C 30.687,26.1458 26.1458,30.687 25.4313,36.4167 Z `
 			)
+			// This transform is based on the size of the SVG so needs to be changed/removed if the crosshair is changed
 			.attr('transform', 'translate(-38, -38)');
 
-		// crosshairContainer
-		// 	.append('circle')
-		// 	.attr('r', `30`)
-		// 	.attr('transform', 'translate(-38, -38)')
-		// 	.attr('stroke', 'white')
-		// 	.attr('stroke-width', '2')
-		// 	.attr('fill', 'none')
-		// 	.attr('cx', 0)
-		// 	.attr('cy', 0);
-
+		// Data loading from the server
 		let data;
 		try {
 			// Load data with promises
@@ -63,13 +67,30 @@
 			return;
 		}
 
+		// Zoom and drag setup
 		const zoom = d3.zoom().on('zoom', (e) => {
 			mainGroup.attr('transform', e.transform);
 			console.log('zoomeded');
-			currentTransform = e.transform;
 		});
 
 		const drag = d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended);
+
+		function dragstarted(event, d) {
+			if (!event.active) simulation.alphaTarget(0.3).restart();
+			d.fx = event.x;
+			d.fy = event.y;
+		}
+
+		function dragged(event, d) {
+			d.fx = event.x;
+			d.fy = event.y;
+		}
+
+		function dragended(event, d) {
+			if (!event.active) simulation.alphaTarget(0);
+			d.fx = null;
+			d.fy = null;
+		}
 
 		// Create links
 		const link = mainGroup
@@ -104,11 +125,13 @@
 				// 	.attr('transform', `translate(${event.x}, ${event.y})`)
 				// 	.raise();
 			})
+			// Drag just exists on the nodes
 			.call(drag);
 
+		// Zoom lives on the SVG because you can zoom anywhere
 		svg.call(zoom);
 
-		// Force simulation
+		// Force simulation that does the actual layout of the graph
 		const simulation = d3
 			.forceSimulation(data.nodes)
 			.force(
@@ -122,6 +145,7 @@
 			.force('center', d3.forceCenter(screenWidth / 2, screenHeight / 2))
 			.on('tick', ticked);
 
+		// General update function for the force simulation
 		function ticked() {
 			link
 				.attr('x1', (d) => d.source.x)
@@ -139,23 +163,6 @@
 					.style('display', 'block')
 					.raise();
 			}
-		}
-
-		function dragstarted(event, d) {
-			if (!event.active) simulation.alphaTarget(0.3).restart();
-			d.fx = event.x;
-			d.fy = event.y;
-		}
-
-		function dragged(event, d) {
-			d.fx = event.x;
-			d.fy = event.y;
-		}
-
-		function dragended(event, d) {
-			if (!event.active) simulation.alphaTarget(0);
-			d.fx = null;
-			d.fy = null;
 		}
 	});
 </script>
