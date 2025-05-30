@@ -32,12 +32,22 @@
 		crosshairContainer
 			.append('path')
 			.attr('class', 'crosshair')
-			.style('fill', '#E0E0E0')
+			.attr('fill', 'white')
 			.attr(
 				'd',
 				`M 22.2448,39.5833L 19,39.5833L 19,36.4167L 22.2448,36.4167C 22.9875,28.9363 28.9363,22.9875 36.4167,22.2448L 36.4167,19L 39.5833,19L 39.5833,22.2448C 47.0637,22.9875 53.0125,28.9363 53.7552,36.4167L 57,36.4167L 57,39.5833L 53.7552,39.5833C 53.0125,47.0637 47.0637,53.0125 39.5833,53.7552L 39.5833,57L 36.4167,57L 36.4167,53.7552C 28.9363,53.0125 22.9875,47.0637 22.2448,39.5833 Z M 25.4313,36.4167L 28.5,36.4167L 28.5,39.5833L 25.4313,39.5833C 26.1458,45.313 30.687,49.8542 36.4167,50.5687L 36.4167,47.5L 39.5833,47.5L 39.5833,50.5687C 45.313,49.8542 49.8542,45.313 50.5686,39.5833L 47.5,39.5833L 47.5,36.4167L 50.5686,36.4167C 49.8542,30.687 45.313,26.1458 39.5833,25.4314L 39.5833,28.5L 36.4167,28.5L 36.4167,25.4314C 30.687,26.1458 26.1458,30.687 25.4313,36.4167 Z `
 			)
 			.attr('transform', 'translate(-38, -38)');
+
+		// crosshairContainer
+		// 	.append('circle')
+		// 	.attr('r', `30`)
+		// 	.attr('transform', 'translate(-38, -38)')
+		// 	.attr('stroke', 'white')
+		// 	.attr('stroke-width', '2')
+		// 	.attr('fill', 'none')
+		// 	.attr('cx', 0)
+		// 	.attr('cy', 0);
 
 		let data;
 		try {
@@ -89,10 +99,10 @@
 			})
 			.on('click', function (event, d) {
 				selectedNode = d;
-				crosshairContainer
-					.style('display', 'block') // ensure it's visible
-					.attr('transform', `translate(${event.x}, ${event.y})`)
-					.raise();
+				// crosshairContainer
+				// 	.style('display', 'block') // ensure it's visible
+				// 	.attr('transform', `translate(${event.x}, ${event.y})`)
+				// 	.raise();
 			})
 			.call(drag);
 
@@ -124,7 +134,10 @@
 			if (selectedNode) {
 				// Pull the current position data from our normal dataset to set the position of the crosshair
 				const nodeData = data.nodes.find((n) => n.id === selectedNode.id);
-				crosshairContainer.attr('transform', `translate(${nodeData.x}, ${nodeData.y}) scale(2.25)`);
+				crosshairContainer
+					.attr('transform', `translate(${nodeData.x}, ${nodeData.y}) scale(2.25)`)
+					.style('display', 'block')
+					.raise();
 			}
 		}
 
