@@ -1,7 +1,11 @@
+<script>
+	import { enhance } from '$app/forms';
+</script>
+
 <div class="flex h-dvh w-dvw flex-col items-center justify-center">
 	<div class="flex w-3/4 max-w-96 flex-col rounded-sm border-2 border-gray-300 p-3">
 		<h1 class="pb-2 text-left text-4xl font-bold">Login</h1>
-		<form action="" method="post" class="flex flex-col gap-2">
+		<form action="" method="post" class="flex flex-col gap-2" use:enhance>
 			<label class="flex flex-col">
 				Username
 				<input type="text" name="uname" id="uname" required />

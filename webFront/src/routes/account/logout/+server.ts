@@ -1,8 +1,21 @@
 import { redirect } from '@sveltejs/kit';
 
-export async function GET(event) {
-	// Logic to fetch users (e.g., from a database)
-	const users = await event.fetch('http://127.0.0.1:8080/maxWantsADummyBecauseHeIsADummy'); // Replace with your actual data source
+export async function GET({ cookies }) {
+	const currentToken = cookies.get('sessionID');
 
-	return redirect(302, '/');
+	if (!currentToken) {
+		return redirect(302, '/account/login');
+	}
+
+	const loginRequest = await fetch('http://127.0.0.1:8080/logout', {
+		method: 'POST',
+		body: JSON.stringify({
+			SessionToken: currentToken
+		}),
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+
+	return redirect(302, '/account/login');
 }

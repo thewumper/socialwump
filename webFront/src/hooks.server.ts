@@ -7,8 +7,11 @@ export const handle = async ({ event, resolve }) => {
 	// Auth check will go here
 	let currentToken = cookies.get('sessionID');
 
+	let authed = false;
+
+	let authStatus;
 	if (currentToken) {
-		const authStatus = await event.fetch('http://127.0.0.1:8080/validateauth', {
+		authStatus = await event.fetch('http://127.0.0.1:8080/validateauth', {
 			method: 'POST',
 			body: JSON.stringify({
 				sessiontoken: currentToken
@@ -17,16 +20,26 @@ export const handle = async ({ event, resolve }) => {
 				'Content-Type': 'application/json'
 			}
 		});
-		console.log(await authStatus.json());
+		authed = true;
 	} else {
 		if (!requestedPath.startsWith('/account')) {
 			return redirect(303, 'account/login');
 		}
 	}
 
-	console.log(requestedPath);
+	const body = await authStatus?.json();
+	if (body && !body.success) {
+		event.cookies.delete('sessionID', { path: '/' });
+		return redirect(303, 'account/login');
+	}
+
+	// Everyone here should be logged in
+	console.log(body);
+
+	if (authed) {
+		event.locals.user = body.user;
+	}
 
 	const response = await resolve(event);
-
 	return response;
 };

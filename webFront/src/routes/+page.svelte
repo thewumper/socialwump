@@ -8,6 +8,8 @@
 	let errored = $state(false);
 	let selectedNode = $state(null);
 
+	const data = $props();
+
 	let crosshairContainer: d3.Selection<SVGGElement, unknown, HTMLElement, any> | null = null;
 
 	const userPowerLevel = $state({ power: 5 });
@@ -192,6 +194,7 @@
 				<button onclick={() => (selectedNode = null)} class="tooltipCloseButton">X</button>
 				<div class="tooltipGrid">
 					<h1 class="tooltipHeader">{selectedNode.name}</h1>
+					<p>{data.user}</p>
 				</div>
 			</div>
 		</div>
@@ -222,7 +225,7 @@
 	}
 
 	.wrapper {
-		width: 100vw;
+		width: 100dvw;
 		height: 100vh; /* Fancy new CSS unit I didn't know about */
 		position: relative;
 		background-color: #212121;

@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 
 export const actions = {
 	default: async ({ cookies, request }) => {
@@ -19,14 +19,13 @@ export const actions = {
 			}
 		});
 
-		console.log(authStatus);
-
 		if (authStatus.status === 409) {
 			return fail(400, { email, message: 'Email or usename already exists' });
 		}
 
 		if (authStatus.status !== 201) {
-			return fail(400, { email, message: authStatus.statusText });
+			const json = await authStatus.json();
+			return fail(400, { email, message: json.message });
 		}
 
 		const loginRequest = await fetch('http://127.0.0.1:8080/login', {
@@ -45,8 +44,13 @@ export const actions = {
 			return fail(400, { email, message: 'Failed to log you in for some ungodly reason' });
 		}
 
-		console.log(authStatus);
+		const json = await loginRequest.json();
 
-		return 'Hi';
+		console.log(json);
+
+		// TODO! Don't ruin my security
+		cookies.set('sessionID', json.sessionToken, { path: '/', secure: false });
+
+		return redirect(303, '/');
 	}
 };

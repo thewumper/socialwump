@@ -20,8 +20,10 @@ export const actions = {
 		});
 
 		let body = await authStatus.json();
+		console.log(body);
 
-		cookies.set('sessionID', body.sessionToken, { path: '/' });
+		// TODO! Don't ruin my security
+		cookies.set('sessionID', body.sessionToken, { path: '/', secure: false });
 
 		return redirect(303, '/');
 	}

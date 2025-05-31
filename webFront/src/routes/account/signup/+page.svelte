@@ -1,4 +1,5 @@
 <script>
+	import { enhance } from '$app/forms';
 	let hasSavedCode = $state(false);
 	let modalOpen = $state(false);
 
@@ -36,7 +37,13 @@
 	{/if}
 	<div class="flex w-3/4 max-w-96 flex-col rounded-sm border-2 border-gray-300 p-3">
 		<h1 class="pb-2 text-left text-4xl font-bold">Sign up</h1>
-		<form id="loginForm" method="post" class="flex flex-col gap-2" bind:this={formelement}>
+		<form
+			id="loginForm"
+			method="post"
+			class="flex flex-col gap-2"
+			bind:this={formelement}
+			use:enhance
+		>
 			<label class="flex flex-col">
 				Email
 				<input
@@ -58,7 +65,7 @@
 			<button
 				type="button"
 				class="my-2 border-1 p-2 transition-colors duration-150 hover:bg-blue-300"
-				onclick={() => (modalOpen = true)}>Submit</button
+				onclick={() => (modalOpen = true)}>Next</button
 			>
 		</form>
 		<a href="/account/login" class="pt-2 text-center text-slate-950 hover:text-slate-600"
