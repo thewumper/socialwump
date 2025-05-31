@@ -1,11 +1,28 @@
+import { redirect } from '@sveltejs/kit';
+
 export const handle = async ({ event, resolve }) => {
 	const requestedPath = event.url.pathname;
 	const cookies = event.cookies;
 
 	// Auth check will go here
-	const currentToken = cookies.get('auth-token');
+	let currentToken = cookies.get('sessionID');
 
-	const authStatus = await event.fetch('http://127.0.0.1:8080/maxWantsADummyBecauseHeIsADummy'); // Replace with your actual data source
+	if (currentToken) {
+		const authStatus = await event.fetch('http://127.0.0.1:8080/validateauth', {
+			method: 'POST',
+			body: JSON.stringify({
+				sessiontoken: currentToken
+			}),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		console.log(await authStatus.json());
+	} else {
+		if (!requestedPath.startsWith('/account')) {
+			return redirect(303, 'account/login');
+		}
+	}
 
 	console.log(requestedPath);
 

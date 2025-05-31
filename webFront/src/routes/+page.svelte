@@ -80,7 +80,6 @@
 		// Zoom and drag setup
 		const zoom = d3.zoom().on('zoom', (e) => {
 			mainGroup.attr('transform', e.transform);
-			console.log('zoomeded');
 		});
 
 		const drag = d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended);
@@ -203,9 +202,9 @@
 
 <style>
 	.graphContainer {
-		width: 100vw;
+		height: 100dvh;
+		width: 100dvw;
 		pointer-events: all;
-		height: 100vh;
 	}
 
 	.centerStuffPlease {
@@ -223,6 +222,8 @@
 	}
 
 	.wrapper {
+		width: 100vw;
+		height: 100vh; /* Fancy new CSS unit I didn't know about */
 		position: relative;
 		background-color: #212121;
 	}
