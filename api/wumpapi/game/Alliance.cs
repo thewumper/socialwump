@@ -5,17 +5,17 @@ namespace wumpapi.game;
 public class Alliance(string name)
 {
     private readonly string name = name;
-    private readonly HashSet<User> users = new();
+    private readonly HashSet<Player> users = new();
 
     
-    public HashSet<User> Users => users;
+    public HashSet<Player> Users => users;
     
     public string GetName()
     {
         return name;
     }
 
-    public void AddUser(User user)
+    public void AddPlayer(Player user)
     {
         users.Add(user);
     }
