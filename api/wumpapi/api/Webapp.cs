@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -67,8 +68,21 @@ public class Webapp
         app.MapPost("/createaccount", CreateAccountHandler).WithName("CreateAccount").Produces(StatusCodes.Status201Created).Produces<ErrorResponse>(StatusCodes.Status409Conflict);
         // TODO: Testing purposes only! Delete this soon
         app.MapPost("/createRelationship", CreateRelationshipHandler).WithName("CreateRelationship");
+        app.MapPost("/dropdatabase", DropDatabase).WithName("DropDatabase");
         app.MapGet("/getLeaderboard", GetLeaderboardHandler).WithName("GetLeaderboard");
+        app.MapPost("/validateauth", ValidateAuthHandler).WithName("ValidateAuth");
         app.MapGet("/maxWantsADummyBecauseHeIsADummy", TestGraphEndpoint).WithName("/maxWantsADummyBecauseHeIsADummy");
+    }
+
+    private IResult ValidateAuthHandler(ISessionManager sessionManager,[FromBody] ValidateAuthRequest request)
+    {
+        return Results.Ok(sessionManager.IsSessionValid(request.SessionToken) ? new ValidateAuthResponse(true, sessionManager.GetAuthedUser(request.SessionToken)) : new ValidateAuthResponse(false, null));
+    }
+
+    private Task DropDatabase(INeo4jDataAccess neo4JDataAccess)
+    {
+        neo4JDataAccess.ExecuteWriteTransactionAsync<bool>(@"MATCH (n) DETACH DELETE n RETURN true");
+        return Task.CompletedTask;
     }
 
     private IResult GetLeaderboardHandler(IPlayerStats playerStats, [FromBody] GetLeaderboardRequest request)
@@ -215,6 +229,9 @@ public class Webapp
             return Results.Conflict(new ErrorResponse("A user with the given username already exists"));
         }
 
+        if (!Regex.IsMatch(request.Username, @"^[\w]+$"))
+            return Results.BadRequest(
+                new ErrorResponse("Invalid username, must contain only numbers letters and underscore"));
         User user = new User(request.Username, request.Email, request.FirstName, request.LastName);
         user.Password = passwordHasher.HashPassword(user, request.Password);
         bool successful = await userRepo.AddUser(user);
@@ -259,6 +276,7 @@ public class Webapp
     {
         return userRepository.GetGraph();
     }
+    
 }
 
 

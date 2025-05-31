@@ -7,11 +7,14 @@ namespace wumpapi.api;
 public record CreateUserRequest([Required] string Username, [Required] string Password, [Required] string FirstName, [Required] string LastName, [Required][EmailAddress] string Email);
 public record LoginUserRequest([Optional] string Username, [Optional][EmailAddress] string Email, [Required] string Password);
 
-public record LoginResponse(string SessionToken, User User);
-public record ErrorResponse(string Message);
-public record RelationshipCreatedResponse(Connection Connection);
+public record LoginResponse([Required] string SessionToken,[Required] User User);
+public record ErrorResponse([Required] string Message);
 
-public record LogoutRequest(string SessionToken);
+public record ValidateAuthRequest([Required] string SessionToken);
+public record ValidateAuthResponse([Required] bool Success, [Required] User? User);
+public record RelationshipCreatedResponse([Required] Connection Connection);
 
-public record CreateRelationshipRequest(string SessionToken, string TargetUser, string RelationshipName, string Data);
-public record GetLeaderboardRequest(string Category);
+public record LogoutRequest([Required] string SessionToken);
+
+public record CreateRelationshipRequest([Required] string SessionToken, [Required] string TargetUser, [Required] string RelationshipName,[Required] string Data);
+public record GetLeaderboardRequest([Required] string Category);
