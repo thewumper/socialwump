@@ -10,27 +10,25 @@ public class GameManager : IGameManager
     private Game currentGame;
     
     
-    public async Task Startup(INeo4jDataAccess dataAccess)
+    public async Task Startup(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry)
     {
         bool hasSaveData = await dataAccess.ExecuteReadScalarAsync<int>(@"MATCH (n:Data) RETURN count(n)") == 1;
         var saveData = hasSaveData ? (await dataAccess.ExecuteReadDictionaryAsync(@"MATCH (n:Data) RETURN n LIMIT 1","n")).FirstOrDefault()!.DictToObject<GameSaveData>() : new GameSaveData();
         List<Player> players = new List<Player>();
         foreach (var playerData in await dataAccess.ExecuteReadDictionaryAsync(@"MATCH (n:Player) RETURN n", "n"))
         {
-            // TODO:FINISH
-            //players.Add(playerData.DictToObject<PlayerData>().ToPlayer());
+            players.Add(playerData.DictToObject<PlayerData>().ToPlayer(userRepository, itemRegistry));
         }
-        // TODO: Finish
         //currentGame = new Game(saveData,players);
         
     }
 
-    public void AutoSave(INeo4jDataAccess dataAccess)
+    public void AutoSave(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry)
     {
         throw new NotImplementedException();
     }
 
-    public void Shutdown(INeo4jDataAccess dataAccess)
+    public void Shutdown(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry)
     {
         throw new NotImplementedException();
     }
