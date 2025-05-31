@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Neo4j.Driver;
 using wumpapi.configuration;
+using wumpapi.game.Items;
 using wumpapi.neo4j;
 using wumpapi.Services;
 using wumpapi.structures;
@@ -22,9 +23,10 @@ public class Webapp
         WebApplicationBuilder builder = CreateBuilder(args);
         AddServices(builder);
         app = builder.Build();
+        RegisterObjects(app.Services.GetService<IItemRegistry>()!);
         SetupApi();
     }
-
+    
 
 
     private WebApplicationBuilder CreateBuilder(string[] args)
@@ -45,6 +47,13 @@ public class Webapp
         builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         builder.Services.AddSingleton<ISessionManager, SessionManager>();
         builder.Services.AddSingleton<IPlayerStats, PlayerStats>();
+        builder.Services.AddSingleton<IItemRegistry, ItemRegistry>();
+    }
+    
+    private void RegisterObjects(IItemRegistry itemRegistry)
+    {
+        ItemRegisterer.RegisterItems(itemRegistry);
+        // do more registration here
     }
     
     private void SetupApi()
@@ -76,6 +85,10 @@ public class Webapp
 
     private IResult ValidateAuthHandler(ISessionManager sessionManager,[FromBody] ValidateAuthRequest request)
     {
+        if (request.SessionToken == null)
+        {
+            return Results.BadRequest("Session token cannot be null");
+        }
         return Results.Ok(sessionManager.IsSessionValid(request.SessionToken) ? new ValidateAuthResponse(true, sessionManager.GetAuthedUser(request.SessionToken)) : new ValidateAuthResponse(false, null));
     }
 
