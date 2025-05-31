@@ -1,4 +1,4 @@
- services:
+services:
   neo4j:
     image: neo4j:latest
     privileged: true
@@ -12,4 +12,11 @@
     ports:
       - "7474:7474"
       - "7687:7687"
+    hostname: wumpdata
     restart: always
+    networks:
+      - my-net
+
+networks:
+  my-net:
+    external: true
