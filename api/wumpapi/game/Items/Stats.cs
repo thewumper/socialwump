@@ -65,10 +65,10 @@ public class Stats
         }
     }
 }
-public class StatModifier(StatModifierType modifierType, float value)
+public class StatModifier(StatModifierType modifierType, Dictionary<StatType, float> modifiers)
 {
     public StatModifierType ModifierType { get; } = modifierType;
-    public Dictionary<StatType, float> Modifiers { get; } = new();
+    public Dictionary<StatType, float> Modifiers { get; } = modifiers;
 }
 
 public enum StatModifierType

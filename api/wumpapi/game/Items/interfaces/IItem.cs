@@ -11,6 +11,7 @@ public partial interface IItem
     string Id { get; }
     string Description { get; }
     int Price { get;  }
+    int BuildTime { get;  }
     string[] conflicts { get; }
     string[] requirements { get; }
     

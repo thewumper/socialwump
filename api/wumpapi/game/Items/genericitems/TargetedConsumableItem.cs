@@ -1,6 +1,7 @@
 namespace wumpapi.game.Items.genericitems;
 
-public class TargetedConsumableItem(string name, string id, string description, int price, string[] conflicts, string[] requirements, float cooldown, TargetableItem.UseDelegate onUse, int maxUses) : TargetableItem(name, id, description, price, conflicts, requirements, cooldown, onUse), ITargetedConsumableItem
+public class TargetedConsumableItem(string name, string id, string description, int price, int buildTime, string[] conflicts, string[] requirements, float cooldown, TargetableItem.UseDelegate onUse, int maxUses) 
+    : TargetableItem(name, id, description, price, buildTime, conflicts, requirements, cooldown, onUse), ITargetedConsumableItem
 {
     public new bool Use(Player activator, Player target)
     {

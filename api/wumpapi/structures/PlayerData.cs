@@ -11,9 +11,9 @@ public class PlayerData
     private string Username { get; set; }
     private string[] Items { get; set; }
 
-    public Player ToPlayer(IUserRepository userRepository, IItemRegistry itemRegistry)
+    public Player ToPlayer(Game game, IUserRepository userRepository, IItemRegistry itemRegistry)
     {
-        Player player =  new Player(userRepository.GetUser(Username).Result);
+        Player player =  new Player(userRepository.GetUser(Username).Result, game);
         IItem[] items = new IItem[Items.Length];
         for (int i = 0; i < Items.Length; i++)
         {

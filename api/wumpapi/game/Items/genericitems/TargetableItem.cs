@@ -1,7 +1,8 @@
 using MemoryPack;
 
 namespace wumpapi.game.Items.genericitems;
-public class TargetableItem(string name, string id, string description, int price, string[] requirements, string[] conflicts, float cooldown, TargetableItem.UseDelegate onUse) : Item(name, id, description, price, conflicts, requirements), ITargetableItem
+public class TargetableItem(string name, string id, string description, int price, int buildTime, string[] requirements, string[] conflicts, float cooldown, TargetableItem.UseDelegate onUse)
+    : Item(name, id, description, price, buildTime, conflicts, requirements), ITargetableItem
 {
     public float Cooldown { get; } = cooldown;
     private DateTime lastUse;

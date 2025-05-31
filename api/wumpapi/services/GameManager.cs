@@ -17,7 +17,7 @@ public class GameManager : IGameManager
         List<Player> players = new List<Player>();
         foreach (var playerData in await dataAccess.ExecuteReadDictionaryAsync(@"MATCH (n:Player) RETURN n", "n"))
         {
-            players.Add(playerData.DictToObject<PlayerData>().ToPlayer(userRepository, itemRegistry));
+            players.Add(playerData.DictToObject<PlayerData>().ToPlayer(currentGame, userRepository, itemRegistry));
         }
         //currentGame = new Game(saveData,players);
         
@@ -49,7 +49,7 @@ public class GameManager : IGameManager
 
     public Player AddPlayer(User user)
     {
-        Player player = new Player(user);
+        Player player = new Player(user, currentGame);
         currentGame.AddPlayer(player);
         return player;
     }
