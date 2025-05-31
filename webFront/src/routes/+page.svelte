@@ -2,12 +2,22 @@
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
 	import { fade } from 'svelte/transition';
+	import Powerbar from '$lib/components/Powerbar.svelte';
 
 	let graph;
 	let errored = $state(false);
 	let selectedNode = $state(null);
 
 	let crosshairContainer: d3.Selection<SVGGElement, unknown, HTMLElement, any> | null = null;
+
+	const userPowerLevel = $state({ power: 5 });
+
+	setInterval(() => {
+		userPowerLevel.power += 1;
+		if (userPowerLevel.power > 10) {
+			userPowerLevel.power = 0;
+		}
+	}, 1000);
 
 	// Change the crosshair display mode when the selected node state changes
 	$effect(() => {
@@ -120,10 +130,6 @@
 			})
 			.on('click', function (event, d) {
 				selectedNode = d;
-				// crosshairContainer
-				// 	.style('display', 'block') // ensure it's visible
-				// 	.attr('transform', `translate(${event.x}, ${event.y})`)
-				// 	.raise();
 			})
 			// Drag just exists on the nodes
 			.call(drag);
@@ -173,6 +179,13 @@
 			<h1 class="errorText">Thigns have exploded :(</h1>
 		</div>
 	{/if}
+
+	<div
+		class="absolute bottom-2 left-1/2 h-10 w-11/12 max-w-4xl"
+		style="transform: translate(-50%,0);"
+	>
+		<Powerbar maxhealth="10" powerlevel={userPowerLevel.power} showNumber={true} />
+	</div>
 
 	{#if selectedNode}
 		<div class="tooltip" transition:fade={{ duration: 100 }}>
