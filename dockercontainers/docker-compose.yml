@@ -15,8 +15,14 @@ services:
     hostname: wumpdata
     restart: always
     networks:
-      - my-net
-
+      - wumpnet
+  wumpapi:
+    image: wumpapi:latest
+    restart: always
+    ports:
+      - "42069:8080"
+    networks:
+      - wumpnet
 networks:
-  my-net:
-    external: true
+  wumpnet:
+    
