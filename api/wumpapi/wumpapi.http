@@ -39,8 +39,8 @@ POST {{wumpapi_HostAddress}}/createRelationship
 Content-Type: application/json
 
 {
-  "SessionToken": "17538acf-4362-4faf-aeec-030e8a70f337",
-  "TargetUser": "MaxiMumMaxx",
+  "SessionToken": "549d31c7-7e81-488d-9b23-5a872bb0d984",
+  "TargetUser": "DuckMan",
   "RelationshipName" : "Meets",
   "Data" : "HAHAHAHAhAHA"
 }

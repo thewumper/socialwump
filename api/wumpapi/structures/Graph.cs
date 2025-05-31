@@ -33,7 +33,7 @@ public class Graph
             {
                 if (Equals(node.user, connection.Initiator))
                     source = node.id;
-                else if (Equals(node.user, connection.Recipient))
+                if (Equals(node.user, connection.Recipient))
                     target = node.id;
                 if (source != -1 && target != -1)
                 {
