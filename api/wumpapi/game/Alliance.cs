@@ -7,6 +7,9 @@ public class Alliance(string name)
     private readonly string name = name;
     private readonly HashSet<User> users = new();
 
+    
+    public HashSet<User> Users => users;
+    
     public string GetName()
     {
         return name;
