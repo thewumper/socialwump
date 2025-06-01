@@ -2,7 +2,9 @@ using wumpapi.game.Items.genericitems;
 using wumpapi.Services;
 
 namespace wumpapi.game.Items;
-
+/// <summary>
+/// Registers all items in the game
+/// </summary>
 public class ItemRegisterer
 {
     public static void RegisterItems(IItemRegistry itemRegistry)

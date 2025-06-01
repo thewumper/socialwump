@@ -3,7 +3,9 @@ using wumpapi.neo4j;
 using wumpapi.structures;
 
 namespace wumpapi.Services;
-
+/// <summary>
+/// Keeps track of the current game and handles data persistence + adding players to games
+/// </summary>
 public interface IGameManager
 {
     public Task Startup(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry);

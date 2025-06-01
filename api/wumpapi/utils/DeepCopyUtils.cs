@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-
+/// <summary>
+/// Way to much code for properly copying data. This is used for items. Uses a LOT of reflefction
+/// </summary>
 public static class DeepCopyUtils
 {
     private class ReferenceEqualityComparer : IEqualityComparer<object>

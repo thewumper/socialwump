@@ -1,7 +1,9 @@
 using wumpapi.structures;
 
 namespace wumpapi.Services;
-
+/// <summary>
+/// Leaderboard + stats for users
+/// </summary>
 public class PlayerStats : IPlayerStats
 {
     private readonly Dictionary<User, PlayerStat> playerStats = new();

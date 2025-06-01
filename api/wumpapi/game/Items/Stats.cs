@@ -1,5 +1,9 @@
-namespace wumpapi.game.Items;
+using wumpapi.game.Items.interfaces;
 
+namespace wumpapi.game.Items;
+/// <summary>
+/// Player statistics, allows modifications from items
+/// </summary>
 public class Stats
 {
     public Stats()

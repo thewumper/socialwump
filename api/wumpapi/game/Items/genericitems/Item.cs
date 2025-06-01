@@ -1,6 +1,16 @@
 
 namespace wumpapi.game.Items.genericitems;
-
+/// <summary>
+/// A generic item with no propersties other than it exists
+/// </summary>
+/// <param name="name"></param>
+/// <param name="id"></param>
+/// <param name="classType"></param>
+/// <param name="description"></param>
+/// <param name="price"></param>
+/// <param name="buildTime"></param>
+/// <param name="conflicts"></param>
+/// <param name="requirements"></param>
 public class Item(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements)
     : IItem
 {

@@ -1,6 +1,7 @@
 namespace wumpapi.structures;
 /// <summary>
-/// Internally represents a connection on the graph
+/// Internally represents a connection on the graph, Unfinished for current graph implementation, soonish will be able to manage conections in the game
+/// TODO: manage in game connections
 /// </summary>
 public class Connection
 {

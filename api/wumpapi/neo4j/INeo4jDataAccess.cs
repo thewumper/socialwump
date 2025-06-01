@@ -1,6 +1,6 @@
 namespace wumpapi.neo4j;
 /// <summary>
-/// From the neo4j website
+/// From the neo4j website, basically just a service that lets you access neo4j
 /// </summary>
 public interface INeo4jDataAccess : IAsyncDisposable
 {
