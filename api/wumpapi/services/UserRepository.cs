@@ -160,14 +160,6 @@ public class UserRepository : IUserRepository
         return await neo4JDataAccess.ExecuteWriteTransactionAsync<bool>(query, parameters);
     }
 
-    public async Task<Graph> GetGraph()
-    {
-        User[] users = (await GetUsers()).ToArray();
-        Connection[] connections = (await GetConnections()).ToArray();
-        
-        return new Graph(users, connections);
-    }
-
 
 }
 
