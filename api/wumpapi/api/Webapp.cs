@@ -93,6 +93,11 @@ public class Webapp
         app.MapGet("/playersingame", PlayersInGameHandler).WithName("PlayersInGame");
         app.MapPost("/joingame", PlayerJoinHandler).WithName("Joingame");
     }
+    
+    
+    
+    
+    
 
     private IResult PlayerJoinHandler(ISessionManager sessionManager, IGameManager gameManager, [FromBody] PlayerJoinRequest request)
     {
@@ -233,9 +238,9 @@ public class Webapp
         }
     }
     
-    private Task<Graph> GraphHandler(IUserRepository userRepository)
+    private Graph? GraphHandler(GameManager gameManager)
     {
-        return userRepository.GetGraph();
+        return gameManager.GetCurrentGame()?.Graph();
     }
     
 }

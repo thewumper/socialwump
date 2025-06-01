@@ -96,4 +96,9 @@ public class Game
     {
         return players.Values.Select(p => p.ToPlayerData()).ToList();
     }
+
+    public Graph Graph()
+    {
+        throw new NotImplementedException();
+    }
 }

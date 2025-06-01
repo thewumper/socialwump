@@ -48,9 +48,4 @@ public interface IUserRepository
     /// <returns>Did it work?</returns>
     /// TODO: also funky
     Task<bool> CreateRelationship(User initiator, User target, string name, string data);
-    /// <summary>
-    /// Get a max readable graph for sending
-    /// </summary>
-    /// <returns>max readable graph</returns>
-    Task<Graph> GetGraph();
 }
