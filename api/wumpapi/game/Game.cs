@@ -34,6 +34,10 @@ public class Game
         {
             RepeatingVariableDelayExecutor updater = new RepeatingVariableDelayExecutor(() =>
             {
+                if (player.Stats.CurrentStats[StatType.Power] == 0)
+                {
+                    return TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]);
+                }
                 player.Stats.CurrentStats[StatType.Power] += player.Stats.CurrentStats[StatType.PowerGenerationAmount];
                 if (player.Stats.CurrentStats[StatType.Power] > player.Stats.CurrentStats[StatType.MaxPower])
                 {
