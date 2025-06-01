@@ -117,7 +117,15 @@ public class Webapp
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
-            return Results.Ok();
+            if (gameManger.GetCurrentGame() != null)
+            {
+                User user = sessionManager.GetAuthedUser(request.SessionToken);
+                return Results.Ok();
+            }
+            else
+            {
+                return Results.BadRequest(new ErrorResponse("Game not started"));
+            }
         }
         else
         {
@@ -265,9 +273,9 @@ public class Webapp
         }
     }
     
-    private Graph? GraphHandler([FromServices] IGameManager gameManager)
+    private IResult GraphHandler([FromServices] IGameManager gameManager)
     {
-        return gameManager.GetCurrentGame()?.Graph();
+        return gameManager.GetCurrentGame()?.Graph() == null ? Results.NoContent() : Results.Ok(gameManager.GetCurrentGame()?.Graph());
     }
     
 }
