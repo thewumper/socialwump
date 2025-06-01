@@ -265,7 +265,7 @@ public class Webapp
         }
     }
     
-    private Graph? GraphHandler([FromServices] GameManager gameManager)
+    private Graph? GraphHandler([FromServices] IGameManager gameManager)
     {
         return gameManager.GetCurrentGame()?.Graph();
     }

@@ -144,6 +144,6 @@ public class Game
 
     public Graph Graph()
     {
-        throw new NotImplementedException();
+        return new Graph(players.Values.ToArray());
     }
 }
