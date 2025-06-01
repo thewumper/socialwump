@@ -32,11 +32,18 @@ public class Game
         
         foreach (Player player in players.Values)
         {
-            playerUpdaters.Add(new RepeatingVariableDelayExecutor(() =>
+            RepeatingVariableDelayExecutor updater = new RepeatingVariableDelayExecutor(() =>
             {
                 player.Stats.CurrentStats[StatType.Power] += player.Stats.CurrentStats[StatType.PowerGenerationAmount];
+                if (player.Stats.CurrentStats[StatType.Power] > player.Stats.CurrentStats[StatType.MaxPower])
+                {
+                    player.Stats.CurrentStats[StatType.Power] = player.Stats.CurrentStats[StatType.MaxPower];
+                }
+
                 return TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]);
-            }, TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]),logger));
+            }, TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]), logger);
+            playerUpdaters.Add(updater);
+            updater.Start();
         }
     }
 
