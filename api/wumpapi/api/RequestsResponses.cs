@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
+using wumpapi.game;
 using wumpapi.structures;
 
 namespace wumpapi.api;
@@ -20,3 +21,6 @@ public record CreateRelationshipRequest([Required] string SessionToken, [Require
 public record GetLeaderboardRequest([Required] string Category);
 
 public record PlayerCountResponse([Required] int Players, int RequiredPlayers);
+
+public record PlayerJoinRequest([Required] string SessionToken);
+public record PlayerJoinResponse([Required] Player Player, [Required] User User);

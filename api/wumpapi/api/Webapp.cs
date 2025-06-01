@@ -91,9 +91,26 @@ public class Webapp
         app.MapGet("/iteminfo", ItemInfoHandler).WithName("ItemInfo");
         app.MapGet("/gamestate", GameStateHandler).WithName("GameState");
         app.MapGet("/playersingame", PlayersInGameHandler).WithName("PlayersInGame");
+        app.MapPost("/joingame", PlayerJoinHandler).WithName("Joingame");
     }
 
-    
+    private IResult PlayerJoinHandler(ISessionManager sessionManager, IGameManager gameManager, [FromBody] PlayerJoinRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            User user = sessionManager.GetAuthedUser(request.SessionToken);
+            Player player = gameManager.AddPlayer(user);
+
+            return Results.Ok(new PlayerJoinResponse(player, user));
+        }
+        else
+        {
+            return Results.BadRequest(new ErrorResponse("Invalid Session"));
+        }
+        
+    }
+
+
     private IResult PlayersInGameHandler(IGameManager gameManager)
     {
         return Results.Ok(new PlayerCountResponse(gameManager.GetCurrentGame()!.WaitingPlayers(), Constants.MinimumPlayers));

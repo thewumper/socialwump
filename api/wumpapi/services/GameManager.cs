@@ -82,9 +82,13 @@ public class GameManager : IGameManager
         return currentGame?.State;
     }
 
-    public Player? AddPlayer(User user)
+    public Player AddPlayer(User user)
     {
         if (currentGame == null) return null;
+        if (currentGame.GetPlayer(user) != null)
+        {
+            return currentGame.GetPlayer(user)!;
+        }
         Player player = new Player(user, currentGame);
         currentGame.AddPlayer(player);
         return player;

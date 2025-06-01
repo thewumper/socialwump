@@ -11,7 +11,7 @@ public interface IGameManager
     public void Shutdown(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry);
     public Game GetActiveGame();
     public GameState? GetGameState();
-    public Player? AddPlayer(User user);
+    public Player AddPlayer(User user);
     Game? GetCurrentGame();
 }
 
