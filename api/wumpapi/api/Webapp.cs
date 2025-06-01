@@ -112,6 +112,35 @@ public class Webapp
         app.MapPost("/leavealliance", LeaveAllianceHandler).WithName("LeaveAlliance");
         app.MapPost("/useability", UseAbilityHandler).WithName("UseAbility");
         app.MapPost("/purchasefromshop", ShopPurchaseHandler).WithName("PurchaseFromShop");
+        app.MapPost("/getplayer", GetPlayerHandler).WithName("GetPlayer");
+    }
+
+    private IResult GetPlayerHandler(ISessionManager sessionManager, IGameManager gameManager, [FromBody] PlayerAuthRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            User user = sessionManager.GetAuthedUser(request.SessionToken);
+            if (gameManager.GetGameState() == GameState.Active)
+            {
+                Player? player = gameManager.GetActiveGame().GetPlayer(user);
+                if (player == null)
+                {
+                    return Results.NoContent();
+                }
+                else
+                {
+                    return Results.Ok(player);
+                }
+            }
+            else
+            {
+                return Results.BadRequest("Game is not active");
+            }
+        }
+        else
+        {
+            return Results.BadRequest("Invalid session token");
+        }
     }
 
     private async Task<IResult> UseAbilityHandler(ISessionManager sessionManager,IUserRepository userRepository ,[FromServices] IGameManager gameManger, [FromBody] AbilityRequest request)
@@ -196,7 +225,7 @@ public class Webapp
     }
 
 
-    private IResult PlayerJoinHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] PlayerJoinRequest request)
+    private IResult PlayerJoinHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] PlayerAuthRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
