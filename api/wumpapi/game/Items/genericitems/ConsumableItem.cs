@@ -1,8 +1,8 @@
 using MemoryPack;
 
 namespace wumpapi.game.Items.genericitems;
-public class ConsumableItem(string name, string id, string description, int price, int buildTime, string[] requirements, string[] conflicts, float cooldown, UsableItem.UseDelegate onUse, int maxUses)
-    : UsableItem(name, id, description, price, buildTime, conflicts, requirements, cooldown, onUse), IConsumableItem
+public class ConsumableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] requirements, string[] conflicts, float cooldown, UsableItem.UseDelegate onUse, int maxUses)
+    : UsableItem(name, id, classType, description, price, buildTime, conflicts, requirements, cooldown, onUse), IConsumableItem
 {
     public new bool Use(Player activator)
     {

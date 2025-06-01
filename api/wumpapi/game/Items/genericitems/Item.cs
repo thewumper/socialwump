@@ -2,11 +2,12 @@ using MemoryPack;
 
 namespace wumpapi.game.Items.genericitems;
 
-public class Item(string name, string id, string description, int price, int buildTime, string[] conflicts, string[] requirements)
+public class Item(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements)
     : IItem
 {
     public string Name { get; } = name;
     public string Id { get; } = id;
+    public ItemClassType ClassType { get; } = classType;
     public string Description { get; } = description;
     public int Price { get; } = price;
     public int BuildTime { get; } = buildTime;
