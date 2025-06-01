@@ -29,3 +29,6 @@ public record AbilityRequest([Required] string SessionToken, [Required] int Item
 public record AllianceRequest([Required] string SessionToken, [Required] string AllianceName);
 public record AllianceResponse([Required] Alliance Alliance);
 public record AllianceLeaveRequest([Required] string SessionToken);
+
+public record ShopPurchaseRequest([Required] string SessionToken, [Required] string ItemId);
+public record ShopPurchaseResponse([Required] IItem Item);

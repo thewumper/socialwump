@@ -21,4 +21,9 @@ public class ItemRegistry : IItemRegistry
     {
         return items.Values.ToList();
     }
+
+    public IItem GetItem(string itemid)
+    {
+        return items[itemid];
+    }
 }

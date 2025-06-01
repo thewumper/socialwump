@@ -12,6 +12,7 @@ using wumpapi.game.Items.interfaces;
 using wumpapi.neo4j;
 using wumpapi.Services;
 using wumpapi.structures;
+using wumpapi.utils;
 using SessionExpiredException = Neo4j.Driver.SessionExpiredException;
 
 namespace wumpapi.api;
@@ -111,7 +112,7 @@ public class Webapp
         app.MapPost("/joinalliance", JoinAllianceHandler).WithName("JoinAlliance");
         app.MapPost("/leavealliance", LeaveAllianceHandler).WithName("LeaveAlliance");
         app.MapPost("/useability", UseAbilityHandler).WithName("UseAbility");
-
+        app.MapPost("/purchasefromshop", ShopPurchaseHandler).WithName("PurchaseFromShop");
     }
 
     private async Task<IResult> UseAbilityHandler(ISessionManager sessionManager,IUserRepository userRepository ,[FromServices] IGameManager gameManger, [FromBody] AbilityRequest request)
@@ -297,6 +298,37 @@ public class Webapp
         }
     }
 
+    private IResult ShopPurchaseHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromServices] IItemRegistry itemRegistry, [FromBody] ShopPurchaseRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            User user = sessionManager.GetAuthedUser(request.SessionToken);
+            Player? player = gameManager.GetActiveGame().GetPlayer(user);
+
+            if (player == null)
+            {
+                Results.BadRequest("Player has not joined yet!");
+            }
+
+            IItem preCopyItem = itemRegistry.GetItem(request.ItemId);
+            
+            for (int i = 0; i < player!.Items.Length; i++)
+            {
+                if (player.Items[i] == null && player.Stats.CurrentStats[StatType.Power] > preCopyItem.Price + 1)
+                {
+                    player.Stats.CurrentStats[StatType.Power] -= preCopyItem.Price;
+                    IItem copiedItem = DeepCopyUtils.DeepCopy(preCopyItem);
+                    
+                    return Results.Ok(new ShopPurchaseResponse(copiedItem));
+                }
+            }
+            return Results.BadRequest("Unable to purchase item!");
+        }
+        else
+        {
+            return Results.BadRequest(new ErrorResponse("Invalid Session"));
+        }
+    }
 
     private IResult PlayersInGameHandler([FromServices] IGameManager gameManager)
     {
