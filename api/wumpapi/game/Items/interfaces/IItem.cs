@@ -12,8 +12,8 @@ public partial interface IItem
     string Description { get; }
     int Price { get;  }
     int BuildTime { get;  }
-    string[] conflicts { get; }
-    string[] requirements { get; }
+    string[] Conflicts { get; }
+    string[] Requirements { get; }
 
     bool IsWork(IItem[] items);
 }

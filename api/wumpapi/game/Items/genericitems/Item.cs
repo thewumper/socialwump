@@ -10,24 +10,24 @@ public class Item(string name, string id, string description, int price, int bui
     public string Description { get; } = description;
     public int Price { get; } = price;
     public int BuildTime { get; } = buildTime;
-    public string[] conflicts { get; } = conflicts;
-    public string[] requirements { get; } = requirements;
+    public string[] Conflicts { get; } = conflicts;
+    public string[] Requirements { get; } = requirements;
 
     public bool IsWork(IItem[] items)
     {
         int counter = 0;
         foreach (IItem item in items)
         {
-            if (conflicts.Contains(item.Id))
+            if (Conflicts.Contains(item.Id))
             {
                 return false;
             }
-            if (requirements.Contains(item.Id))
+            if (Requirements.Contains(item.Id))
             {
                 counter++;
             }
         }
 
-        return counter >= requirements.Length;
+        return counter >= Requirements.Length;
     }
 }

@@ -8,10 +8,10 @@ namespace wumpapi.game;
 public class Game(GameSaveData saveData)
 {
     public GameState State { get; set; }
-    
-    Dictionary<User,Player> players = new();
+
+    private readonly Dictionary<User,Player> players = new();
     List<Alliance> alliances = new();
-    Dictionary<Player, Alliance> alliancePlayers = new();
+    private readonly Dictionary<Player, Alliance> alliancePlayers = new();
     GameSaveData saveData = saveData;
     
     public void AddPlayer(Player player)
@@ -29,7 +29,11 @@ public class Game(GameSaveData saveData)
         return players.GetValueOrDefault(user);
     }
 
-    public void AddSavedPlayers(List<Player> list)
+    public void AddSavedPlayers(List<Player> newPlayers)
     {
+        foreach (Player player in newPlayers)
+        {
+            AddPlayer(player);
+        }
     }
 }
