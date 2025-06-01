@@ -1,5 +1,10 @@
 namespace wumpapi.utils;
-
+/// <summary>
+/// Like a timer, it lets you do something over and over again, but the result of the thing will effect the next cycle time
+/// </summary>
+/// <param name="delayDelegate"></param>
+/// <param name="initialDelay"></param>
+/// <param name="logger"></param>
 public class RepeatingVariableDelayExecutor(
     RepeatingVariableDelayExecutor.DelayDelegate delayDelegate,
     TimeSpan initialDelay,

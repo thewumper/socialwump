@@ -16,7 +16,9 @@ using wumpapi.utils;
 using SessionExpiredException = Neo4j.Driver.SessionExpiredException;
 
 namespace wumpapi.api;
-
+/// <summary>
+/// Manages API endpoints and services
+/// </summary>
 public class Webapp
 {
     private ApplicationSettings settings;
@@ -496,10 +498,9 @@ public class Webapp
         return Results.Ok(sessionManager.IsSessionValid(request.SessionToken) ? new ValidateAuthResponse(true, sessionManager.GetAuthedUser(request.SessionToken)) : new ValidateAuthResponse(false, null));
     }
 
-    private Task DropDatabase(INeo4jDataAccess neo4JDataAccess)
+    private async Task DropDatabase(INeo4jDataAccess neo4JDataAccess)
     {
-        neo4JDataAccess.ExecuteWriteTransactionAsync<bool>(@"MATCH (n) DETACH DELETE n RETURN true");
-        return Task.CompletedTask;
+        await neo4JDataAccess.ExecuteWriteTransactionAsync<bool>(@"MATCH (n) DETACH DELETE n RETURN true");
     }
 
     private IResult GetLeaderboardHandler(IPlayerStats playerStats, [FromBody] GetLeaderboardRequest request)

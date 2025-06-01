@@ -4,7 +4,9 @@ using wumpapi.game.Items.genericitems;
 using wumpapi.utils;
 
 namespace wumpapi.Services;
-
+/// <summary>
+/// Service for storing items
+/// </summary>
 public class ItemRegistry : IItemRegistry
 {
     readonly Dictionary<string, IItem> items = new();

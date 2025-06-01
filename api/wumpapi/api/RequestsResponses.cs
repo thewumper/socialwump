@@ -5,6 +5,13 @@ using wumpapi.structures;
 
 namespace wumpapi.api;
 
+/// <summary>
+/// This File contains a list of all of the requests and server response data
+/// This is a class because I wanted a comment at the top of the file and didnt want it to be associated with the request directly bellow this
+/// </summary>
+public static class RequestResponse;
+
+
 public record CreateUserRequest([Required] string Username, [Required] string Password, [Required] string FirstName, [Required] string LastName, [Required][EmailAddress] string Email);
 public record LoginUserRequest([Optional] string Username, [Optional][EmailAddress] string Email, [Required] string Password);
 

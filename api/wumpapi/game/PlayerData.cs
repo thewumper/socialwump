@@ -2,7 +2,9 @@ using wumpapi.neo4j;
 using wumpapi.Services;
 
 namespace wumpapi.game;
-
+/// <summary>
+/// Data that will be pulled to and from neo4j, can be converted into a player
+/// </summary>
 public class PlayerData
 {
     public PlayerData(){}

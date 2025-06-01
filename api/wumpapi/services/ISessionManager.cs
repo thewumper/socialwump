@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using wumpapi.neo4j;
 using wumpapi.Services;
 using wumpapi.structures;
-
+/// <summary>
+/// Manages sessions of logged in users
+/// </summary>
 public interface ISessionManager
 {
     /// <summary>

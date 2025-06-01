@@ -1,7 +1,18 @@
 using wumpapi.game.Items.interfaces;
 
 namespace wumpapi.game.Items.genericitems;
-
+/// <summary>
+/// Item that has a cooldown which can be queried and reset, no effects though
+/// </summary>
+/// <param name="name"></param>
+/// <param name="id"></param>
+/// <param name="classType"></param>
+/// <param name="description"></param>
+/// <param name="price"></param>
+/// <param name="buildTime"></param>
+/// <param name="conflicts"></param>
+/// <param name="requirements"></param>
+/// <param name="baseCooldown"></param>
 public class CooldownItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements, float baseCooldown) : Item(name, id, classType, description, price, buildTime, conflicts, requirements), ICooldownItem
 {
     public float BaseCooldown { get; protected set; } = baseCooldown;

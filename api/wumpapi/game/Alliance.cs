@@ -1,6 +1,9 @@
 
 namespace wumpapi.game;
-
+/// <summary>
+/// Named group of players. No fees (not implemented yet) + wins together
+/// </summary>
+/// <param name="name"></param>
 public class Alliance(string name)
 {
     private readonly HashSet<Player> users = new();

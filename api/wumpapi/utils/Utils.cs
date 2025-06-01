@@ -1,5 +1,7 @@
 namespace wumpapi.utils;
-
+/// <summary>
+/// Basic utilities
+/// </summary>
 public static class Utils
 {
     public static void RunAfterDelay(Action action, TimeSpan delay, ILogger logger)

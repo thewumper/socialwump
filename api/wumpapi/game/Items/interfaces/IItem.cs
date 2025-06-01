@@ -1,10 +1,9 @@
-using MemoryPack;
 using wumpapi.game.Items.genericitems;
 
 /// <summary>
 /// Item in game
 /// </summary>
-public partial interface IItem
+public interface IItem
 {
     // All items have sets because the copying thing needs them to have it
     string Name { get; }

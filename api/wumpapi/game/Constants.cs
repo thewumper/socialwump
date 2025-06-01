@@ -1,5 +1,7 @@
 namespace wumpapi.game;
-
+/// <summary>
+/// Constants used throughout the program 
+/// </summary>
 public static class Constants
 {
     public const int ItemSlots = 5;

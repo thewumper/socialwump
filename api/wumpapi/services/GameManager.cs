@@ -4,7 +4,9 @@ using wumpapi.structures;
 using wumpapi.utils;
 
 namespace wumpapi.Services;
-
+/// <summary>
+/// Keeps track of the current game and handles data persistence + adding players to games
+/// </summary>
 public class GameManager : IGameManager
 {
     private Game? currentGame;
