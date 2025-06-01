@@ -20,13 +20,12 @@ public class GameManager : IGameManager
         {
             players.Add(playerData.DictToObject<PlayerData>().ToPlayer(currentGame, userRepository, itemRegistry));
         }
-
         currentGame.AddSavedPlayers(players);
     }
 
     public void AutoSave(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry)
     {
-        throw new NotImplementedException();
+        
     }
 
     public void Shutdown(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry)

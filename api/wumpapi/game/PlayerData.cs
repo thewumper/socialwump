@@ -1,25 +1,27 @@
-using wumpapi.game;
-using wumpapi.game.Items;
 using wumpapi.neo4j;
 using wumpapi.Services;
 
-namespace wumpapi.structures;
+namespace wumpapi.game;
 
 public class PlayerData
 {
     public PlayerData(){}
     private string Username { get; set; }
     private string[] Items { get; set; }
-
+    private string Alliance { get; set; }
+    
+    
     public Player ToPlayer(Game game, IUserRepository userRepository, IItemRegistry itemRegistry)
     {
         Player player =  new Player(userRepository.GetUser(Username).Result, game);
-        IItem[] items = new IItem[Items.Length];
+        IItem?[] items = new IItem[Items.Length];
         for (int i = 0; i < Items.Length; i++)
         {
             string itemid = Items[i];
             items[i] = itemRegistry.Parse(itemid);
         }
+        player.Items = items;
+        player.AllianceName = Alliance;
         return player;
     }
 }

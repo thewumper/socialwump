@@ -11,6 +11,7 @@ public class Player(User user, Game game)
     public IItem?[] Items = new IItem?[ItemSlots]; 
     public User User { get; } = user;
     public Stats Stats { get; set; } = new Stats();
+    public String AllianceName { get; set; } = "";
 
     private Game game = game;
     

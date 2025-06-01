@@ -29,35 +29,37 @@ public class Stats
     {
         foreach (IItem item in items)
         {
-            List<StatModifier> additiveBuffs = new List<StatModifier>();
-            List<StatModifier> multiplicativeBuffs = new List<StatModifier>();
+            List<StatModifier> buffs = new();
             if (item is IStatModifyingItem modifyingItem)
             {
-                if (modifyingItem.StatModifier.ModifierType == StatModifierType.Additive)
-                {
-                    additiveBuffs.Add(modifyingItem.StatModifier);
-                }
-                else if (modifyingItem.StatModifier.ModifierType == StatModifierType.Multiplicative)
-                {
-                    multiplicativeBuffs.Add(modifyingItem.StatModifier);
-                }
+                buffs.Add(modifyingItem.StatModifier);
             }
-            Dictionary<StatType, float> newStats = BaseStats.ToDictionary(stat => stat.Key, stat => stat.Value);
-            foreach (StatModifier additiveBuff in additiveBuffs)
+            var newStats = BaseStats.ToDictionary(stat => stat.Key, stat => stat.Value);
+            var newStatsMultiply = BaseStats.ToDictionary(stat => stat.Key, _ => 1f);
+
+            foreach (StatModifier buff in buffs)
             {
-                foreach (var modifier in additiveBuff.Modifiers)
+                foreach (var modifier in buff.Modifiers)
                 {
-                    newStats[modifier.Key] += modifier.Value;
+                    switch (modifier.Value.ModiferType)
+                    {
+                        case StatModifierType.Additive:
+                            newStats[modifier.Key] += modifier.Value.Amount;
+                            break;
+                        case StatModifierType.Multiplicative:
+                            newStatsMultiply[modifier.Key] += modifier.Value.Amount;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
             }
 
-            foreach (StatModifier multiplicativeBuff in multiplicativeBuffs)
+            foreach (var stat in newStats)
             {
-                foreach (var modifier in multiplicativeBuff.Modifiers)
-                {
-                    newStats[modifier.Key] *= modifier.Value;
-                }
+                newStats[stat.Key] = stat.Value * newStatsMultiply[stat.Key];
             }
+            
             // Kind of hacky, just get it working though
             newStats[StatType.Power] = CurrentStats[StatType.Power];
             
@@ -65,12 +67,16 @@ public class Stats
         }
     }
 }
-public class StatModifier(StatModifierType modifierType, Dictionary<StatType, float> modifiers)
+public class StatModifier(StatModifierType modifierType, Dictionary<StatType, Modifier> modifiers)
 {
-    public StatModifierType ModifierType { get; } = modifierType;
-    public Dictionary<StatType, float> Modifiers { get; } = modifiers;
+    public Dictionary<StatType, Modifier> Modifiers { get; } = modifiers;
 }
 
+public class Modifier(StatModifierType modiferType, float amount)
+{
+    public StatModifierType ModiferType { get; } = modiferType;
+    public float Amount { get; } = amount;
+}
 public enum StatModifierType
 {
     Additive,

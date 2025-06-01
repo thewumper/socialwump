@@ -5,14 +5,21 @@ namespace wumpapi.game;
 /// <summary>
 /// Keeps track of a game
 /// </summary>
-public class Game(GameSaveData saveData)
+public class Game
 {
+    public Game(GameSaveData saveData)
+    {
+        State = saveData.State;
+        foreach (var allianceName in saveData.SavedAlliances)
+        {
+            alliances.Add(new Alliance(allianceName));
+        }
+    }
     public GameState State { get; set; }
 
     private readonly Dictionary<User,Player> players = new();
-    List<Alliance> alliances = new();
+    readonly List<Alliance> alliances = new();
     private readonly Dictionary<Player, Alliance> alliancePlayers = new();
-    GameSaveData saveData = saveData;
     
     public void AddPlayer(Player player)
     {
@@ -35,5 +42,15 @@ public class Game(GameSaveData saveData)
         {
             AddPlayer(player);
         }
+    }
+
+    public List<Alliance> GetAllAlliances()
+    {
+        return alliances;
+    }
+
+    public GameSaveData Save()
+    {
+        return new GameSaveData(State, alliances.Select((a) => a.GetName()).ToList());
     }
 }
