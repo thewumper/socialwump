@@ -18,9 +18,6 @@ public class ItemRegisterer
                 // Deal damage to enemy!!!
                 target.TakeDamage(activator.GetDamage());
                 
-                // Life steal
-                
-                
                 return true;
             }));
         
@@ -117,7 +114,7 @@ public class ItemRegisterer
                 { StatType.MaxPower, new Modifier(StatModifierType.Additive, 10f)}
             })));
         
-        // TODO: Add functionality to this item!
+        // This item does not have full functionality
         itemRegistry.RegisterItem(new TargetableItem("Power Share", "ss_tier5", ItemClassType.Support, "Choose player in alliance, for the next two minutes your power generation items are shared", 32, 120, [], [], 180,
             (activator, target) =>
             {
