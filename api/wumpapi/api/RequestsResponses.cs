@@ -24,4 +24,4 @@ public record PlayerCountResponse([Required] int Players, int RequiredPlayers);
 
 public record PlayerJoinRequest([Required] string SessionToken);
 public record PlayerJoinResponse([Required] Player Player, [Required] User User);
-public record AbilityRequest([Required] string SessionToken);
+public record AbilityRequest([Required] string SessionToken, [Required] int ItemSlot, [Required] string Target);

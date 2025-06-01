@@ -124,6 +124,7 @@ public class Webapp
                 Player? player = currentGame.GetPlayer(user);
                 if (player != null)
                 {
+                    
                     return Results.Ok();
                 }
                 else
