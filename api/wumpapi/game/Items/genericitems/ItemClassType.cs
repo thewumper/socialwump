@@ -6,8 +6,8 @@ namespace wumpapi.game.Items.genericitems;
 /// <example>Generic, DPS, Tank, or Support</example>
 public enum ItemClassType
 {
-    Generic = 0,
-    DPS = 1,
-    Tank = 2,
-    Support = 3
+    Generic,
+    DPS,
+    Tank,
+    Support
 }

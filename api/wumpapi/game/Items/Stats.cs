@@ -18,8 +18,10 @@ public class Stats
         { StatType.PowerGenerationAmount, 1 },
         { StatType.DamageResistance, 0 },
         { StatType.DamageShare, 0},
+        { StatType.LifeSteal, 0 },
         { StatType.AttackPower, 1},
         { StatType.CooldownReduction, 0},
+        { StatType.WeaponCooldownReduction, 0 },
         { StatType.PowerGenerationPeriod, 10}
     };
     public Dictionary<StatType, float> CurrentStats { get; private set; }
@@ -90,7 +92,9 @@ public enum StatType
     PowerGenerationAmount,
     DamageResistance,
     DamageShare,
+    LifeSteal,
     AttackPower,
     PowerGenerationPeriod,
     CooldownReduction,
+    WeaponCooldownReduction
 }

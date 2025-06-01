@@ -4,7 +4,7 @@ namespace wumpapi.game.Items.genericitems;
 
 public class CooldownItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements, float baseCooldown) : Item(name, id, classType, description, price, buildTime, conflicts, requirements), ICooldownItem
 {
-    public float BaseCooldown { get; } = baseCooldown;
+    public float BaseCooldown { get; protected set; } = baseCooldown;
     public DateTime LastUsed { get; private set; }
     public float Cooldown(Player player)
     {
