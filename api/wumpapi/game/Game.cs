@@ -38,10 +38,10 @@ public class Game
                 {
                     return TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]);
                 }
-                player.Stats.CurrentStats[StatType.Power] += player.Stats.CurrentStats[StatType.PowerGenerationAmount];
+                player.Stats.CurrentStats[StatType.Power] += float.Round(player.Stats.CurrentStats[StatType.PowerGenerationAmount]);
                 if (player.Stats.CurrentStats[StatType.Power] > player.Stats.CurrentStats[StatType.MaxPower])
                 {
-                    player.Stats.CurrentStats[StatType.Power] = player.Stats.CurrentStats[StatType.MaxPower];
+                    player.Stats.CurrentStats[StatType.Power] = float.Round(player.Stats.CurrentStats[StatType.MaxPower]);
                 }
 
                 return TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]);
