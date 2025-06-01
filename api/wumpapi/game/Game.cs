@@ -87,6 +87,51 @@ public class Game
         return alliances;
     }
 
+    public Alliance? CreateAlliance(string name, Player creator)
+    {
+        // Time cdrunch shopuld be dictionaiory oh well
+        foreach (Alliance alliance in alliances)
+        {
+            if (alliance.GetName() == name)
+            {
+                return null;
+            }
+        }
+
+        Alliance newAlliance = new Alliance(name);
+        newAlliance.AddPlayer(creator);
+        alliances.Add(newAlliance);
+        return newAlliance;
+    }
+    public Alliance? JoinAlliance(string name, Player joiner)
+    {
+        foreach (Alliance alliance in alliances)
+        {
+            if (alliance.GetName() == name)
+            {
+                alliance.AddPlayer(joiner);
+                return alliance;
+            }
+        }
+
+        return null;
+    }
+
+    public Alliance? LeaveAlliance(Player player)
+    {
+        foreach (Alliance alliance in alliances)
+        {
+            if (alliance.GetName() == player.AllianceName)
+            {
+                alliance.RemovePlayer(player);
+                return alliance;
+            }
+        }
+
+        return null;
+    }
+    
+
     public GameSaveData Save()
     {
         return new GameSaveData(State, alliances.Select((a) => a.GetName()).ToList());

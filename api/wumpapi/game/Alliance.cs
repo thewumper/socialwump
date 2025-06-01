@@ -18,4 +18,10 @@ public class Alliance(string name)
         users.Add(user);
         user.AllianceName = name;
     }
+
+    public void RemovePlayer(Player user)
+    {
+        users.Remove(user);
+        user.AllianceName = null;
+    }
 }
