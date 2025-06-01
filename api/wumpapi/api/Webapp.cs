@@ -8,6 +8,7 @@ using Neo4j.Driver;
 using wumpapi.configuration;
 using wumpapi.game;
 using wumpapi.game.Items;
+using wumpapi.game.Items.interfaces;
 using wumpapi.neo4j;
 using wumpapi.Services;
 using wumpapi.structures;
@@ -113,7 +114,7 @@ public class Webapp
 
     }
 
-    private IResult UseAbilityHandler(ISessionManager sessionManager ,[FromServices] IGameManager gameManger, [FromBody] AbilityRequest request)
+    private async Task<IResult> UseAbilityHandler(ISessionManager sessionManager,IUserRepository userRepository ,[FromServices] IGameManager gameManger, [FromBody] AbilityRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
@@ -124,6 +125,35 @@ public class Webapp
                 Player? player = currentGame.GetPlayer(user);
                 if (player != null)
                 {
+                    IItem? itemToUse = player.Items[request.ItemSlot];
+                    User target;
+                    try
+                    {
+                        target = await userRepository.GetUser(request.Target);
+                    }
+                    catch (UserNotFoundException e)
+                    {
+                        return Results.BadRequest("Invalid target");
+                    }
+
+                    if (itemToUse == null)
+                    {
+                        return Results.BadRequest("You dont have an item in that slot");
+                    }
+                    if (target.Username == user.Username)
+                    {
+                        if (itemToUse is IUsableItem usableItem)
+                        {
+                            if (usableItem.Use(player))
+                            {
+                                return Results.Ok();
+                            }
+                            else
+                            {
+                                return Results.BadRequest("Item failed to use, maybe it's on cooldown");
+                            }
+                        }
+                    }
                     
                     return Results.Ok();
                 }
@@ -253,7 +283,24 @@ public class Webapp
     
     private IResult GameStateHandler([FromServices] IGameManager gameManager)
     {
-        return Results.Ok(gameManager.GetGameState());
+        string result;
+        switch (gameManager.GetGameState())
+        {
+            case GameState.Active:
+                result = "Active";
+                break;
+            case GameState.Waiting:
+                result = "Waiting";
+                break;
+            case GameState.Starting:
+                result = "Starting";
+                break;
+            case null:
+            default:
+                result = "Unknown";
+                break;
+        }
+        return Results.Ok(result);
     }
 
     private IResult ItemInfoHandler(IItemRegistry itemRegistry)

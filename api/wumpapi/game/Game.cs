@@ -54,6 +54,7 @@ public class Game
     public void AddPlayer(Player player)
     {
         players.Add(player.User, player);
+        State = GameState.Waiting;
         if (players.Count >= Constants.MinimumPlayers)
         {
             Utils.RunAfterDelay(() =>
