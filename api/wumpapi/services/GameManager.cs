@@ -18,10 +18,10 @@ public class GameManager : IGameManager
     public async Task Startup(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry)
     {
         bool hasSaveData = await dataAccess.ExecuteReadScalarAsync<int>(@"MATCH (n:Data) RETURN count(n)") == 1;
-        var saveData = hasSaveData ? (await dataAccess.ExecuteReadDictionaryAsync(@"MATCH (n:Data) RETURN n LIMIT 1","n")).FirstOrDefault()!.DictToObject<GameSaveData>() : new GameSaveData();
+        var saveData = hasSaveData ? (await dataAccess.ExecuteReadDictionaryAsync(@"MATCH (n:Data) RETURN n {State: n.State, SavedAlliances:n.SavedAlliances} LIMIT 1","n")).FirstOrDefault()!.DictToObject<GameSaveData>() : new GameSaveData(GameState.Waiting, new List<string>());
         currentGame = new Game(saveData, logger);
         List<Player> players = new List<Player>();
-        foreach (var playerData in await dataAccess.ExecuteReadDictionaryAsync(@"MATCH (n:Player) RETURN n", "n"))
+        foreach (var playerData in await dataAccess.ExecuteReadDictionaryAsync(@"MATCH (n:Player) RETURN n {Username:n.Username, Items: n.Items, Alliance: n.Alliance}", "n"))
         {
             players.Add(playerData.DictToObject<PlayerData>().ToPlayer(currentGame, userRepository, itemRegistry));
         }
@@ -49,7 +49,7 @@ public class GameManager : IGameManager
         
         foreach (var playerData in currentGame.SavePlayers())
         {
-            string createPlayer = @"CREATE (n:Player {Username: $username, Items: $items, Alliance: $alliance) return true";
+            string createPlayer = @"CREATE (n:Player {Username: $username, Items: $items, Alliance: $alliance}) return true";
             Dictionary<string, object> createPlayerParameters = new()
             {
                 {"username", playerData.Username},

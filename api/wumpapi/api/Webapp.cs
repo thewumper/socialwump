@@ -113,14 +113,31 @@ public class Webapp
 
     private void RegisterAtticusEndpoints()
     {
-        app.MapPost("/useaility", UseAbilityHandler).WithName("useaility");
+        app.MapPost("/useability", UseAbilityHandler).WithName("UseAbility");
     }
 
     private IResult UseAbilityHandler(ISessionManager sessionManager ,[FromServices] IGameManager gameManger, [FromBody] AbilityRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
-            return Results.Ok();
+            Game? currentGame = gameManger.GetCurrentGame();
+            if (currentGame != null)
+            {
+                User user = sessionManager.GetAuthedUser(request.SessionToken);
+                Player? player = currentGame.GetPlayer(user);
+                if (player != null)
+                {
+                    return Results.Ok();
+                }
+                else
+                {
+                    return Results.BadRequest(new ErrorResponse("Player is not in the game"));
+                }
+            }
+            else
+            {
+                return Results.BadRequest(new ErrorResponse("Game not started"));
+            }
         }
         else
         {
@@ -353,9 +370,16 @@ public class Webapp
         }
     }
     
-    private Graph? GraphHandler([FromServices] GameManager gameManager)
+    private IResult GraphHandler([FromServices] IGameManager gameManager)
     {
-        return gameManager.GetCurrentGame()?.Graph();
+        if (gameManager.GetGameState() == GameState.Active)
+        {
+            return Results.Ok(gameManager.GetActiveGame().Graph());
+        }
+        else
+        {
+            return Results.NoContent();
+        }
     }
     
 }
