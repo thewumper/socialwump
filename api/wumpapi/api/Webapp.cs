@@ -109,11 +109,8 @@ public class Webapp
         app.MapPost("/createalliance", CreateAllianceHandler).WithName("CreateAlliance");
         app.MapPost("/joinalliance", JoinAllianceHandler).WithName("JoinAlliance");
         app.MapPost("/leavealliance", LeaveAllianceHandler).WithName("LeaveAlliance");
-    }
-
-    private void RegisterAtticusEndpoints()
-    {
         app.MapPost("/useability", UseAbilityHandler).WithName("UseAbility");
+
     }
 
     private IResult UseAbilityHandler(ISessionManager sessionManager ,[FromServices] IGameManager gameManger, [FromBody] AbilityRequest request)
