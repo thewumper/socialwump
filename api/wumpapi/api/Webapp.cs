@@ -106,6 +106,9 @@ public class Webapp
         app.MapGet("/gamestate", GameStateHandler).WithName("GameState");
         app.MapGet("/playersingame", PlayersInGameHandler).WithName("PlayersInGame");
         app.MapPost("/joingame", PlayerJoinHandler).WithName("Joingame");
+        app.MapPost("/createalliance", CreateAllianceHandler).WithName("CreateAlliance");
+        app.MapPost("/joinalliance", JoinAllianceHandler).WithName("JoinAlliance");
+        app.MapPost("/leavealliance", LeaveAllianceHandler).WithName("LeaveAlliance");
     }
 
     private void RegisterAtticusEndpoints()
@@ -140,6 +143,91 @@ public class Webapp
             return Results.BadRequest(new ErrorResponse("Invalid Session"));
         }
         
+    }
+    
+    private IResult CreateAllianceHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] AllianceRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            User user = sessionManager.GetAuthedUser(request.SessionToken);
+            
+            try
+            {
+                Player? player = gameManager.GetActiveGame().GetPlayer(user);
+
+                if (player == null)
+                {
+                    return Results.BadRequest(new ErrorResponse("Player has not joined yet!"));
+                }
+                
+                return Results.Ok(new AllianceResponse(gameManager.GetActiveGame().CreateAlliance(request.AllianceName, player)!));
+            }
+            catch (InvalidOperationException e)
+            {
+                return Results.BadRequest(new ErrorResponse(e.Message));
+            }
+        }
+        else
+        {
+            return Results.BadRequest(new ErrorResponse("Invalid Session"));
+        }
+    }
+    
+    private IResult JoinAllianceHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] AllianceRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            User user = sessionManager.GetAuthedUser(request.SessionToken);
+
+            try
+            {
+                Player? player = gameManager.GetActiveGame().GetPlayer(user);
+
+                if (player == null)
+                {
+                    return Results.BadRequest(new ErrorResponse("Player has not joined yet!"));
+                }
+                
+                return Results.Ok(new AllianceResponse(gameManager.GetActiveGame().JoinAlliance(request.AllianceName, player)!));
+            }
+            catch (InvalidOperationException e)
+            {
+                return Results.BadRequest(new ErrorResponse(e.Message));
+            }
+        }
+        else
+        {
+            return Results.BadRequest(new ErrorResponse("Invalid Session"));
+        }
+    }
+    
+    private IResult LeaveAllianceHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] AllianceLeaveRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            User user = sessionManager.GetAuthedUser(request.SessionToken);
+
+            try
+            {
+                Player? player = gameManager.GetActiveGame().GetPlayer(user);
+
+                if (player == null)
+                {
+                    return Results.BadRequest(new ErrorResponse("Player has not joined yet!"));
+                }
+
+                gameManager.GetActiveGame().LeaveAlliance(player);
+                return Results.Ok();
+            }
+            catch (InvalidOperationException e)
+            {
+                return Results.BadRequest(new ErrorResponse(e.Message));
+            }
+        }
+        else
+        {
+            return Results.BadRequest(new ErrorResponse("Invalid Session"));
+        }
     }
 
 
