@@ -1,5 +1,5 @@
 @wumpapi_HostAddress = http://localhost:5034
-
+@wumpapi_AlmostProdAddress = http://localhost:42069
 
 ###
 GET {{wumpapi_HostAddress}}/graph/
@@ -46,4 +46,7 @@ Content-Type: application/json
 }
 ###
 GET {{wumpapi_HostAddress}}/graph
+Accept: application/json
+###
+GET {{wumpapi_AlmostProdAddress}}/graph
 Accept: application/json
