@@ -7,8 +7,8 @@ namespace wumpapi.game;
 /// </summary>
 public class Player(User user, Game game)
 {
-    public const int ItemSlots = 5;
-    public readonly IItem?[] Items = new IItem?[5]; 
+    private const int ItemSlots = 5;
+    public IItem?[] Items = new IItem?[ItemSlots]; 
     public User User { get; } = user;
     public Stats Stats { get; set; } = new Stats();
 
