@@ -1,7 +1,7 @@
 namespace wumpapi.game.Items.genericitems;
 
-public class UsableItem(string name, string id, string description, int price, int buildTime, string[] conflicts, string[] requirements, float cooldown, UsableItem.UseDelegate onUse) 
-    : Item(name, id, description, price, buildTime, conflicts, requirements), IUsableItem
+public class UsableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements, float cooldown, UsableItem.UseDelegate onUse) 
+    : Item(name, id, classType, description, price, buildTime, conflicts, requirements), IUsableItem
 {
     public float Cooldown { get; } = cooldown;
     private DateTime lastUse;
