@@ -23,10 +23,35 @@ public class Player(User user, Game game)
     
     public void TakeDamage(int damage)
     {
-        float damageResistance = Stats.CurrentStats[StatType.DamageResistance];
-        
         // Take damage with the damage resistance amount removed from the total damage
-        Stats.CurrentStats[StatType.Power] -= (1 - damageResistance) * damage;
+        float damageResistance = Stats.CurrentStats[StatType.DamageResistance];
+        int damageTaken = (int)Math.Round((1 - damageResistance) * damage, MidpointRounding.AwayFromZero);
+        
+        // Add up all the absorbed damage from the other players
+        Alliance? currentAlliance = game.GetAlliancePlayerIn(this);
+        float totalDamageSharePercentage = 0.0f;
+        if (currentAlliance != null)
+        {
+            foreach (Player player in currentAlliance.Users)
+            {
+                float playerDamageShare = player.Stats.CurrentStats[StatType.DamageShare];
+
+                if (player == this || playerDamageShare <= 0.0f)
+                {
+                    continue;
+                }
+                
+                totalDamageSharePercentage += playerDamageShare;
+                
+                // Take the absorbed damage from the other player
+                player.Stats.CurrentStats[StatType.Power] -= (int)Math.Round(damageTaken * playerDamageShare, MidpointRounding.AwayFromZero);
+            }
+        }
+
+        totalDamageSharePercentage = Math.Min(totalDamageSharePercentage, 1.0f);
+        
+        // Actually deal the damage
+        Stats.CurrentStats[StatType.Power] -= (int)Math.Round(damageTaken * (1 - totalDamageSharePercentage), MidpointRounding.AwayFromZero);
     }
     
 }
