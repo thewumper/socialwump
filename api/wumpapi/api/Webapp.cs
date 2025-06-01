@@ -84,7 +84,7 @@ public class Webapp
         app.MapPost("/createaccount", CreateAccountHandler).WithName("CreateAccount").Produces(StatusCodes.Status201Created).Produces<ErrorResponse>(StatusCodes.Status409Conflict);
         // TODO: Testing purposes only! Delete this soon
         app.MapPost("/createRelationship", CreateRelationshipHandler).WithName("CreateRelationship");
-        app.MapPost("/dropdatabase", DropDatabase).WithName("DropDatabase");
+        app.MapGet("/dropdatabase", DropDatabase).WithName("DropDatabase");
         app.MapGet("/getLeaderboard", GetLeaderboardHandler).WithName("GetLeaderboard");
         app.MapPost("/validateauth", ValidateAuthHandler).WithName("ValidateAuth");
         app.MapGet("/iteminfo", ItemInfoHandler).WithName("ItemInfo");
