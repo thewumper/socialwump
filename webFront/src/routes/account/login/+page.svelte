@@ -1,5 +1,7 @@
 <script>
 	import { enhance } from '$app/forms';
+
+	let { data, form } = $props();
 </script>
 
 <div class="flex h-dvh w-dvw flex-col items-center justify-center">
@@ -14,6 +16,9 @@
 				Login Code
 				<input type="password" name="code" id="code" required />
 			</label>
+			{#if form?.message}
+				<p class="font-semibold text-red-600">{form.message}</p>
+			{/if}
 			<button type="submit" class="rounded-sm bg-blue-800 p-2 text-white">Submit</button>
 		</form>
 		<a href="/account/signup" class="pt-2 text-center text-slate-950 hover:text-slate-600"

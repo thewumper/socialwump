@@ -30,7 +30,6 @@
 					hasSavedCode = true;
 					modalOpen = false;
 					formelement.submit();
-					console.log('clickth');
 				}}>I have saved this code and not lose it</button
 			>
 		</div>

@@ -3,12 +3,14 @@
 	import * as d3 from 'd3';
 	import { fade } from 'svelte/transition';
 	import Powerbar from '$lib/components/Powerbar.svelte';
+	import { enhance } from '$app/forms';
+	import ItemBar from '$lib/components/ItemBar.svelte';
 
 	let graph;
 	let errored = $state(false);
 	let selectedNode = $state(null);
 
-	const data = $props();
+	const { data } = $props();
 
 	let crosshairContainer: d3.Selection<SVGGElement, unknown, HTMLElement, any> | null = null;
 
@@ -181,11 +183,19 @@
 		</div>
 	{/if}
 
-	<div
-		class="absolute bottom-2 left-1/2 h-10 w-11/12 max-w-4xl"
-		style="transform: translate(-50%,0);"
-	>
-		<Powerbar maxhealth="10" powerlevel={userPowerLevel.power} showNumber={true} />
+	<div class="pointer-events-none absolute h-dvh w-dvw">
+		<div
+			class="pointer-events-none absolute bottom-2 left-1/2 h-10 w-11/12 max-w-4xl"
+			style="transform: translate(-50%,0);"
+		>
+			<Powerbar maxhealth="10" powerlevel={userPowerLevel.power} showNumber={true} />
+		</div>
+		<div
+			class="pointer-events-auto absolute bottom-1/2 left-2"
+			style="transform: translate(0,50%);"
+		>
+			<ItemBar />
+		</div>
 	</div>
 
 	{#if selectedNode}
@@ -193,8 +203,11 @@
 			<div class="tooltipWrapper">
 				<button onclick={() => (selectedNode = null)} class="tooltipCloseButton">X</button>
 				<div class="tooltipGrid">
-					<h1 class="tooltipHeader">{selectedNode.name}</h1>
-					<p>{data.user}</p>
+					<h1 class="tooltipHeader">{selectedNode.user.username}</h1>
+					<form method="POST" use:enhance action="/graph/debugconnect">
+						<input type="hidden" name="targetUser" value={selectedNode.user.username} />
+						<button class="bg-gray-600 p-2.5 hover:bg-gray-400" type="submit">Connect</button>
+					</form>
 				</div>
 			</div>
 		</div>

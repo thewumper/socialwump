@@ -7,7 +7,7 @@ export const actions = {
 		const code = data.get('code');
 		const email = data.get('email');
 
-		const authStatus = await fetch('http://127.0.0.1:8080/createaccount', {
+		const authStatus = await fetch('http://127.0.0.1:42069/createaccount', {
 			method: 'POST',
 			body: JSON.stringify({
 				Username: username,
@@ -28,7 +28,7 @@ export const actions = {
 			return fail(400, { email, message: json.message });
 		}
 
-		const loginRequest = await fetch('http://127.0.0.1:8080/login', {
+		const loginRequest = await fetch('http://127.0.0.1:42069/login', {
 			method: 'POST',
 			body: JSON.stringify({
 				Username: username,
@@ -45,8 +45,6 @@ export const actions = {
 		}
 
 		const json = await loginRequest.json();
-
-		console.log(json);
 
 		// TODO! Don't ruin my security
 		cookies.set('sessionID', json.sessionToken, { path: '/', secure: false });

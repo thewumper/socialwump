@@ -9,9 +9,10 @@ export const handle = async ({ event, resolve }) => {
 
 	let authed = false;
 
+	let body;
 	let authStatus;
 	if (currentToken) {
-		authStatus = await event.fetch('http://127.0.0.1:8080/validateauth', {
+		authStatus = await event.fetch('http://127.0.0.1:42069/validateauth', {
 			method: 'POST',
 			body: JSON.stringify({
 				sessiontoken: currentToken
@@ -20,23 +21,25 @@ export const handle = async ({ event, resolve }) => {
 				'Content-Type': 'application/json'
 			}
 		});
+		body = await authStatus?.json();
 		authed = true;
-	} else {
+
+		if (!body.success) {
+			event.cookies.delete('sessionID', { path: '/' });
+			authed = false;
+		}
+	}
+
+	if (!authed) {
 		if (!requestedPath.startsWith('/account')) {
 			return redirect(303, 'account/login');
 		}
 	}
 
-	const body = await authStatus?.json();
-	if (body && !body.success) {
-		event.cookies.delete('sessionID', { path: '/' });
-		return redirect(303, 'account/login');
-	}
-
 	// Everyone here should be logged in
-	console.log(body);
 
 	if (authed) {
+		event.locals.sessionID = currentToken;
 		event.locals.user = body.user;
 	}
 
