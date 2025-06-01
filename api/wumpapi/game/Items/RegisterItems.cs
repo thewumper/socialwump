@@ -12,7 +12,7 @@ public class ItemRegisterer
         ///////////////////
         // GENERIC ITEMS //
         ///////////////////
-        itemRegistry.RegisterItem(new Weapon("Gun", "ag_gun", ItemClassType.Generic,"Receive a gun to attack others\nDeals 1 Power of Damage, Fires every 30 seconds", 4, 30,[],[],30,
+        itemRegistry.RegisterItem(new Weapon("Gun", "ag_gun", ItemClassType.Generic,"Receive a gun to attack others\nDeals 1 Power of Damage, 30 Second Cooldown", 4, 30,[],[],30,
             (activator, target) =>
             {
                 // Deal damage to enemy!!!
@@ -30,7 +30,7 @@ public class ItemRegisterer
         itemRegistry.RegisterItem(new StatModifyingItem("Basic Increased Power Generation", "ig_powerGenerate", ItemClassType.Generic, "Increases Power Generation by 20%", 4, 10, [], [],
             new StatModifier(new Dictionary<StatType, Modifier>
             {
-                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 1.2f) }
+                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.8f) }
             })));
         
         itemRegistry.RegisterItem(new StatModifyingItem("Basic Damage Resistance", "ig_damageResistance", ItemClassType.Generic, "Increases Damage Resistance by 10%", 8, 30, [], [],
@@ -46,7 +46,7 @@ public class ItemRegisterer
             new StatModifier(new Dictionary<StatType, Modifier>
             {
                 { StatType.WeaponCooldownReduction, new Modifier(StatModifierType.Additive, 0.35f) },
-                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 1.1f) }
+                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.9f) }
             })));
         
         itemRegistry.RegisterItem(new StatModifyingItem("Better Attacks", "id_tier2", ItemClassType.DPS, "Increase Attack Damage by 2\nIncrease Max Power by 5", 8, 30, [], [],
@@ -83,6 +83,28 @@ public class ItemRegisterer
                 { StatType.WeaponCooldownReduction, new Modifier(StatModifierType.Additive, 0.75f)}
             })));
         
+        ///////////////////
+        // SUPPORT ITEMS //
+        ///////////////////
+        itemRegistry.RegisterItem(new StatModifyingItem("Faster Power Generation", "is_tier1", ItemClassType.Support, "Increase power generation by 50%\nAttacks are 15% slower", 8, 30, [], [],
+            new StatModifier(new Dictionary<StatType, Modifier>
+            {
+                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.5f) },
+                { StatType.WeaponCooldownReduction, new Modifier(StatModifierType.Additive, -0.15f)}
+            })));
+        
+        itemRegistry.RegisterItem(new StatModifyingItem("Even Faster Power Generation", "is_tier2", ItemClassType.Support, "Increase power generation by 50%\nLower damage resistance by 10%", 8, 30, [], [],
+            new StatModifier(new Dictionary<StatType, Modifier>
+            {
+                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.5f) },
+                { StatType.DamageResistance, new Modifier(StatModifierType.Additive, -0.1f)}
+            })));
+        itemRegistry.RegisterItem(new StatModifyingItem("Way Faster Power Generation", "is_tier3", ItemClassType.Support, "Increase power generation by 50%\nIncrease Max Power by 10", 16, 60, [], [],
+            new StatModifier(new Dictionary<StatType, Modifier>
+            {
+                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.5f) },
+                { StatType.MaxPower, new Modifier(StatModifierType.Additive, 20f)}
+            })));
         
     }
 }
