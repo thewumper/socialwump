@@ -13,16 +13,16 @@ public class Stats
     
     public static readonly Dictionary<StatType, float> BaseStats = new()
     {
-        { StatType.Power, 0},
+        { StatType.Power, 1},
         { StatType.MaxPower, 5 },
         { StatType.PowerGenerationAmount, 1 },
-        { StatType.DamageResistance, 0 },
-        { StatType.DamageShare, 0},
+        { StatType.DamageResistance, 0.1f },
+        { StatType.DamageShare, 0 },
         { StatType.LifeSteal, 0 },
-        { StatType.AttackPower, 1},
-        { StatType.CooldownReduction, 0},
+        { StatType.AttackPower, 1 },
+        { StatType.CooldownReduction, 0 },
         { StatType.WeaponCooldownReduction, 0 },
-        { StatType.PowerGenerationPeriod, 10}
+        { StatType.PowerGenerationPeriod, 15 }
     };
     public Dictionary<StatType, float> CurrentStats { get; private set; }
     

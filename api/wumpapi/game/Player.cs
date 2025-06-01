@@ -59,7 +59,25 @@ public class Player(User user, Game game)
         int finalDamage =
             (int)Math.Round(damageTaken * (1 - totalDamageSharePercentage), MidpointRounding.AwayFromZero);
         Stats.CurrentStats[StatType.Power] -= finalDamage;
+
+        // We're dead!
+        if (Stats.CurrentStats[StatType.Power] <= 0)
+        {
+            KillPlayer();
+        }
+        
         return finalDamage;
+    }
+
+    public void KillPlayer()
+    {
+        game.LeaveAlliance(this);
+        
+        // No more items!
+        for (int i = 0; i < Items.Length; i++)
+        {
+            Items[i] = null;
+        }
     }
     
 }
