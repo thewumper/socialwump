@@ -78,6 +78,7 @@ public class Player(User user, Game game)
         {
             Items[i] = null;
         }
+        Stats.UpdateFromItems(Items!);
     }
     
 }

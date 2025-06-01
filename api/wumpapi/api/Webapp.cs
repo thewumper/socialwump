@@ -113,6 +113,7 @@ public class Webapp
         app.MapPost("/useability", UseAbilityHandler).WithName("UseAbility");
         app.MapPost("/purchasefromshop", ShopPurchaseHandler).WithName("PurchaseFromShop");
         app.MapPost("/getplayer", GetPlayerHandler).WithName("GetPlayer");
+        app.MapPost("/sharepower", PowerShareHandler).WithName("SharePower");
     }
 
     private IResult GetPlayerHandler(ISessionManager sessionManager, IGameManager gameManager, [FromBody] PlayerAuthRequest request)
@@ -224,6 +225,67 @@ public class Webapp
         }
     }
 
+    private async Task<IResult> PowerShareHandler (ISessionManager sessionManager, IUserRepository userRepository, [FromServices] IGameManager gameManger, [FromBody] PowerShareRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            Game? currentGame = gameManger.GetCurrentGame();
+            if (currentGame != null)
+            {
+                User user = sessionManager.GetAuthedUser(request.SessionToken);
+                Player? player = currentGame.GetPlayer(user);
+                if (player != null)
+                {
+                    User target;
+                    try
+                    {
+                        target = await userRepository.GetUser(request.username);
+                    }
+                    catch (UserNotFoundException e)
+                    {
+                        return Results.BadRequest("Invalid target");
+                    }
+
+                    if (target.Username == user.Username)
+                    {
+                        return Results.BadRequest("You cannot give power to yourself!");
+                    }
+
+                    Player? targetPlayer = currentGame.GetPlayer(target);
+                    if (targetPlayer != null)
+                    {
+                        if (request.powerAmount >= player.Stats.CurrentStats[StatType.Power])
+                        {
+                            return Results.BadRequest("Cannot give more power than you have!");
+                        }
+                        
+                        float finalPowerAmount = Math.Min(request.powerAmount, targetPlayer.Stats.CurrentStats[StatType.MaxPower] - targetPlayer.Stats.CurrentStats[StatType.Power]);
+                        
+                        player.Stats.CurrentStats[StatType.Power] -= finalPowerAmount;
+                        targetPlayer.Stats.CurrentStats[StatType.Power] += finalPowerAmount;
+                        return Results.Ok();
+                    }
+                    else
+                    {
+                        return Results.BadRequest("Target player doesn't exist");
+                    }
+                    
+                }
+                else
+                {
+                    return Results.BadRequest(new ErrorResponse("Player is not in the game"));
+                }
+            }
+            else
+            {
+                return Results.BadRequest(new ErrorResponse("Game not started"));
+            }
+        }
+        else
+        {
+            return Results.BadRequest(new ErrorResponse("Invalid Session"));
+        }
+    }
 
     private IResult PlayerJoinHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] PlayerAuthRequest request)
     {
@@ -346,7 +408,7 @@ public class Webapp
                 {
                     player.Stats.CurrentStats[StatType.Power] -= preCopyItem.Price;
                     IItem copiedItem = DeepCopyUtils.DeepCopy(preCopyItem);
-                    
+                    player.Stats.UpdateFromItems(player.Items!);
                     return Results.Ok(new ShopPurchaseResponse(copiedItem));
                 }
             }

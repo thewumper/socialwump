@@ -32,3 +32,5 @@ public record AllianceLeaveRequest([Required] string SessionToken);
 
 public record ShopPurchaseRequest([Required] string SessionToken, [Required] string ItemId);
 public record ShopPurchaseResponse([Required] IItem Item);
+
+public record PowerShareRequest([Required] string SessionToken, [Required] string username, [Required] int powerAmount);
