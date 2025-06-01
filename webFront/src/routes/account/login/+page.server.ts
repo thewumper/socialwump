@@ -1,4 +1,5 @@
 import { redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 
 export const actions = {
 	default: async ({ cookies, request }) => {
@@ -7,7 +8,7 @@ export const actions = {
 		const code = data.get('code');
 		const email = data.get('email');
 
-		const authStatus = await fetch('http://127.0.0.1:8080/login', {
+		const authStatus = await fetch('http://127.0.0.1:42069/login', {
 			method: 'POST',
 			body: JSON.stringify({
 				Username: username,
@@ -20,7 +21,10 @@ export const actions = {
 		});
 
 		let body = await authStatus.json();
-		console.log(body);
+
+		if (authStatus.status !== 200) {
+			return fail(400, { email, message: body.message });
+		}
 
 		// TODO! Don't ruin my security
 		cookies.set('sessionID', body.sessionToken, { path: '/', secure: false });

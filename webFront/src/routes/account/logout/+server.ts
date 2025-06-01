@@ -7,7 +7,7 @@ export async function GET({ cookies }) {
 		return redirect(302, '/account/login');
 	}
 
-	const loginRequest = await fetch('http://127.0.0.1:8080/logout', {
+	const loginRequest = await fetch('http://127.0.0.1:42069/logout', {
 		method: 'POST',
 		body: JSON.stringify({
 			SessionToken: currentToken
