@@ -117,10 +117,19 @@ public class Webapp
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
-            if (gameManger.GetCurrentGame() != null)
+            Game? currentGame = gameManger.GetCurrentGame();
+            if (currentGame != null)
             {
                 User user = sessionManager.GetAuthedUser(request.SessionToken);
-                return Results.Ok();
+                Player? player = currentGame.GetPlayer(user);
+                if (player != null)
+                {
+                    return Results.Ok();
+                }
+                else
+                {
+                    return Results.BadRequest(new ErrorResponse("Player is not in the game"));
+                }
             }
             else
             {
@@ -275,7 +284,14 @@ public class Webapp
     
     private IResult GraphHandler([FromServices] IGameManager gameManager)
     {
-        return gameManager.GetCurrentGame()?.Graph() == null ? Results.NoContent() : Results.Ok(gameManager.GetCurrentGame()?.Graph());
+        if (gameManager.GetGameState() == GameState.Active)
+        {
+            return Results.Ok(gameManager.GetActiveGame().Graph());
+        }
+        else
+        {
+            return Results.NoContent();
+        }
     }
     
 }
