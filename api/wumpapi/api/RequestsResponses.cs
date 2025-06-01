@@ -18,3 +18,5 @@ public record LogoutRequest([Required] string SessionToken);
 
 public record CreateRelationshipRequest([Required] string SessionToken, [Required] string TargetUser, [Required] string RelationshipName,[Required] string Data);
 public record GetLeaderboardRequest([Required] string Category);
+
+public record PlayerCountResponse([Required] int Players, int RequiredPlayers);

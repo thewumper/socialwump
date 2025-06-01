@@ -89,4 +89,9 @@ public class GameManager : IGameManager
         currentGame.AddPlayer(player);
         return player;
     }
+
+    public Game? GetCurrentGame()
+    {
+        return currentGame;
+    }
 }

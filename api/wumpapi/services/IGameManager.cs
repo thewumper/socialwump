@@ -12,6 +12,7 @@ public interface IGameManager
     public Game GetActiveGame();
     public GameState? GetGameState();
     public Player? AddPlayer(User user);
+    Game? GetCurrentGame();
 }
 
 public enum GameState

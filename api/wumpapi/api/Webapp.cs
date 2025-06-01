@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Neo4j.Driver;
 using wumpapi.configuration;
+using wumpapi.game;
 using wumpapi.game.Items;
 using wumpapi.neo4j;
 using wumpapi.Services;
@@ -89,8 +90,15 @@ public class Webapp
         app.MapPost("/validateauth", ValidateAuthHandler).WithName("ValidateAuth");
         app.MapGet("/iteminfo", ItemInfoHandler).WithName("ItemInfo");
         app.MapGet("/gamestate", GameStateHandler).WithName("GameState");
+        app.MapGet("/playersingame", PlayersInGameHandler).WithName("PlayersInGame");
     }
 
+    
+    private IResult PlayersInGameHandler(IGameManager gameManager)
+    {
+        return Results.Ok(new PlayerCountResponse(gameManager.GetCurrentGame()!.WaitingPlayers(), Constants.MinimumPlayers));
+    }
+    
     private IResult GameStateHandler(IGameManager gameManager)
     {
         return Results.Ok(gameManager.GetGameState());

@@ -40,6 +40,11 @@ public class Game
         }
     }
 
+    public int WaitingPlayers()
+    {
+        return players.Count;
+    }
+
     public List<RepeatingVariableDelayExecutor> GetPlayerUpdaters()
     {
         return playerUpdaters;
