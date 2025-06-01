@@ -71,11 +71,25 @@ public class Webapp
     }
     private void StartGame()
     {
-        app.Services.GetService<IGameManager>()!.Startup(app.Services.GetService<INeo4jDataAccess>()!,app.Services.GetService<IUserRepository>()!, app.Services.GetService<IItemRegistry>()!);
+        Task.Run(async () =>
+        {
+            var scope = app.Services.CreateAsyncScope();
+            try
+            {
+                var service = scope.ServiceProvider;
+                await app.Services.GetService<IGameManager>()!.Startup(service.GetService<INeo4jDataAccess>()!,
+                    service.GetRequiredService<IUserRepository>()!, service.GetRequiredService<IItemRegistry>()!);
+            }
+            finally
+            {
+                await scope.DisposeAsync();
+            }
+        });
     }
 
     private void RegisterEndpoints()
     {
+        
         app.MapPost("/login", LoginHandler).WithName("login").Produces<LoginResponse>().Produces<ErrorResponse>(StatusCodes.Status401Unauthorized);
         app.MapPost("/logout", LogoutHandler).WithName("logout").Produces<Ok>().Produces<ErrorResponse>(StatusCodes.Status401Unauthorized);
         // TODO: add all the proper codes
@@ -93,11 +107,24 @@ public class Webapp
         app.MapGet("/playersingame", PlayersInGameHandler).WithName("PlayersInGame");
         app.MapPost("/joingame", PlayerJoinHandler).WithName("Joingame");
     }
-    
-    
-    
-    
-    
+
+    private void RegisterAtticusEndpoints()
+    {
+        app.MapPost("/useaility", UseAbilityHandler).WithName("useaility");
+    }
+
+    private IResult UseAbilityHandler(ISessionManager sessionManager ,IGameManager gameManger, [FromBody] AbilityRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            return Results.Ok();
+        }
+        else
+        {
+            return Results.BadRequest(new ErrorResponse("Invalid Session"));
+        }
+    }
+
 
     private IResult PlayerJoinHandler(ISessionManager sessionManager, IGameManager gameManager, [FromBody] PlayerJoinRequest request)
     {
@@ -244,5 +271,6 @@ public class Webapp
     }
     
 }
+
 
 
