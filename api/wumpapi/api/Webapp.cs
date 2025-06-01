@@ -112,8 +112,11 @@ public class Webapp
         app.MapPost("/leavealliance", LeaveAllianceHandler).WithName("LeaveAlliance");
         app.MapPost("/useability", UseAbilityHandler).WithName("UseAbility");
         app.MapPost("/purchasefromshop", ShopPurchaseHandler).WithName("PurchaseFromShop");
+        app.MapPost("/sellItem", SellItemHandler).WithName("SellItemHandler");
         app.MapPost("/getplayer", GetPlayerHandler).WithName("GetPlayer");
     }
+
+
 
     private IResult GetPlayerHandler(ISessionManager sessionManager, IGameManager gameManager, [FromBody] PlayerAuthRequest request)
     {
@@ -325,7 +328,39 @@ public class Webapp
             return Results.BadRequest(new ErrorResponse("Invalid Session"));
         }
     }
+    private IResult SellItemHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromServices] IItemRegistry itemRegistry, [FromBody] ShopSellRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            User user = sessionManager.GetAuthedUser(request.SessionToken);
+            Player? player = gameManager.GetActiveGame().GetPlayer(user);
 
+            if (player == null)
+            {
+                Results.BadRequest("Player has not joined yet!");
+            }
+            else if (request.ItemSlot >= 0 && request.ItemSlot < player.Items.Length)
+            {
+                IItem? itemToSell = player.Items[request.ItemSlot];
+                if (itemToSell == null)
+                {
+                    return Results.BadRequest(new ErrorResponse("Can't sell a nonexistant item!"));
+                }
+                else
+                {
+                    player.Stats.CurrentStats[StatType.Power] = float.Min(float.Floor(itemToSell.Price * 0.7f), player.Stats.CurrentStats[StatType.MaxPower]);
+                    player.Items[request.ItemSlot] = null;
+                    return Results.Ok();
+                }
+            }
+
+            return Results.BadRequest("Unable to sell item!");
+        }
+        else
+        {
+            return Results.BadRequest(new ErrorResponse("Invalid Session"));
+        }
+    }
     private IResult ShopPurchaseHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromServices] IItemRegistry itemRegistry, [FromBody] ShopPurchaseRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))

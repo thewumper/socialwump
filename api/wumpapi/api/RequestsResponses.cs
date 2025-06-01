@@ -31,4 +31,6 @@ public record AllianceResponse([Required] Alliance Alliance);
 public record AllianceLeaveRequest([Required] string SessionToken);
 
 public record ShopPurchaseRequest([Required] string SessionToken, [Required] string ItemId);
+public record ShopSellRequest([Required] string SessionToken, [Required] int ItemSlot);
+
 public record ShopPurchaseResponse([Required] IItem Item);
