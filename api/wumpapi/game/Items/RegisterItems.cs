@@ -18,6 +18,9 @@ public class ItemRegisterer
                 // Deal damage to enemy!!!
                 target.TakeDamage(activator.GetDamage());
                 
+                // Life steal
+                
+                
                 return true;
             }));
         
@@ -99,12 +102,79 @@ public class ItemRegisterer
                 { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.5f) },
                 { StatType.DamageResistance, new Modifier(StatModifierType.Additive, -0.1f)}
             })));
+        
         itemRegistry.RegisterItem(new StatModifyingItem("Way Faster Power Generation", "is_tier3", ItemClassType.Support, "Increase power generation by 50%\nIncrease Max Power by 10", 16, 60, [], [],
             new StatModifier(new Dictionary<StatType, Modifier>
             {
                 { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.5f) },
-                { StatType.MaxPower, new Modifier(StatModifierType.Additive, 20f)}
+                { StatType.MaxPower, new Modifier(StatModifierType.Additive, 10f)}
             })));
+        
+        itemRegistry.RegisterItem(new StatModifyingItem("Way Even Faster Power Generation", "is_tier4", ItemClassType.Support, "Increase power generation by 50%\nIncrease Max Power by 20", 32, 120, [], [],
+            new StatModifier(new Dictionary<StatType, Modifier>
+            {
+                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.5f) },
+                { StatType.MaxPower, new Modifier(StatModifierType.Additive, 10f)}
+            })));
+        
+        // TODO: Add functionality to this item!
+        itemRegistry.RegisterItem(new TargetableItem("Power Share", "ss_tier5", ItemClassType.Support, "Choose player in alliance, for the next two minutes your power generation items are shared", 32, 120, [], [], 180,
+            (activator, target) =>
+            {
+                return true;
+            }));
+        
+        ////////////////
+        // TANK ITEMS //
+        ////////////////
+        itemRegistry.RegisterItem(new StatModifyingItem("Increased Power", "it_tier1", ItemClassType.Tank, "Increase Max Power by 15\nLower power generation by 20%", 8, 30, [], [],
+            new StatModifier(new Dictionary<StatType, Modifier>
+            {
+                { StatType.MaxPower, new Modifier(StatModifierType.Additive, 15f) },
+                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.8f)}
+            })));
+        
+        itemRegistry.RegisterItem(new StatModifyingItem("Increased Resistance", "it_tier2", ItemClassType.Tank, "Increase damage resistance by 20%\nLower power generation by 10%", 16, 60, [], [],
+            new StatModifier(new Dictionary<StatType, Modifier>
+            {
+                { StatType.DamageResistance, new Modifier(StatModifierType.Additive, 0.2f) },
+                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.9f)}
+            })));
+        
+        itemRegistry.RegisterItem(new StatModifyingItem("More Power", "it_tier3", ItemClassType.Tank, "Increase Max Power by 30\nLower power generation by 10%\nConflicts with all support items", 16, 60, ["is_tier1","is_tier2","is_tier3","is_tier4","ss_tier5"], [],
+            new StatModifier(new Dictionary<StatType, Modifier>
+            {
+                { StatType.MaxPower, new Modifier(StatModifierType.Additive, 30f) },
+                { StatType.PowerGenerationPeriod, new Modifier(StatModifierType.Multiplicative, 0.9f)}
+            })));
+        
+        itemRegistry.RegisterItem(new StatModifyingItem("More Power and Resistance", "it_tier4", ItemClassType.Tank, "Increase Max Power by 50\nIncrease damage resistance by 40%\nConflicts with all support items", 32, 120, ["is_tier1","is_tier2","is_tier3","is_tier4","ss_tier5"], [],
+            new StatModifier(new Dictionary<StatType, Modifier>
+            {
+                { StatType.MaxPower, new Modifier(StatModifierType.Additive, 50f) },
+                { StatType.DamageResistance, new Modifier(StatModifierType.Additive, 0.4f )}
+            })));
+        
+        itemRegistry.RegisterItem(new StatModifyingItem("Absorb Some Damage", "st_tier5", ItemClassType.Tank, "Absorb 20% of damage dealt to other alliance members\nConflicts with all support items", 32, 300, ["is_tier1","is_tier2","is_tier3","is_tier4","ss_tier5"], [],
+            new StatModifier(new Dictionary<StatType, Modifier>
+            {
+                { StatType.DamageShare, new Modifier(StatModifierType.Additive, 0.2f) },
+            })));
+        
+        itemRegistry.RegisterItem(new StatModifyingItem("Absorb All Damage", "st_tier6", ItemClassType.Tank, "Absorb all damage dealt to other alliance members\nConflicts with all support items", 64, 600, ["is_tier1","is_tier2","is_tier3","is_tier4","ss_tier5"], ["st_tier5"],
+            new StatModifier(new Dictionary<StatType, Modifier>
+            {
+                { StatType.DamageShare, new Modifier(StatModifierType.Additive, 1.0f) },
+            })));
+        
+        ////////////////
+        // MACGUFFINS //
+        ////////////////
+        itemRegistry.RegisterItem(new Item("Red MacGuffin", "sm_red", ItemClassType.MacGuffin, "Can only hold one per person, if all three MacGuffins are held by the same alliance, that alliance is the winner!", 100, 300, ["sm_blue", "sm_green"], []));
+        
+        itemRegistry.RegisterItem(new Item("Blue MacGuffin", "sm_blue", ItemClassType.MacGuffin, "Can only hold one per person, if all three MacGuffins are held by the same alliance, that alliance is the winner!", 100, 300, ["sm_red", "sm_green"], []));
+        
+        itemRegistry.RegisterItem(new Item("Green MacGuffin", "sm_green", ItemClassType.MacGuffin, "Can only hold one per person, if all three MacGuffins are held by the same alliance, that alliance is the winner!", 100, 300, ["sm_red", "sm_blue"], []));
         
     }
 }

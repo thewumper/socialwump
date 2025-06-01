@@ -26,7 +26,7 @@ public class Player(User user, Game game)
         return (int)Math.Round(currentAttackDamage, MidpointRounding.AwayFromZero);
     }
     
-    public void TakeDamage(int damage)
+    public int TakeDamage(int damage)
     {
         // Take damage with the damage resistance amount removed from the total damage
         float damageResistance = Math.Min(Stats.CurrentStats[StatType.DamageResistance], 1.0f);
@@ -56,7 +56,10 @@ public class Player(User user, Game game)
         totalDamageSharePercentage = Math.Min(totalDamageSharePercentage, 1.0f);
         
         // Actually deal the damage
-        Stats.CurrentStats[StatType.Power] -= (int)Math.Round(damageTaken * (1 - totalDamageSharePercentage), MidpointRounding.AwayFromZero);
+        int finalDamage =
+            (int)Math.Round(damageTaken * (1 - totalDamageSharePercentage), MidpointRounding.AwayFromZero);
+        Stats.CurrentStats[StatType.Power] -= finalDamage;
+        return finalDamage;
     }
     
 }

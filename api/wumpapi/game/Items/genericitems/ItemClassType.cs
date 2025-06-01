@@ -10,4 +10,5 @@ public enum ItemClassType
     DPS = 1,
     Support = 2,
     Tank = 3,
+    MacGuffin = 4,
 }
