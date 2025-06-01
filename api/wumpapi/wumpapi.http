@@ -53,3 +53,10 @@ Accept: application/json
 ###
 GET {{wumpapi_HostAddress}}/iteminfo
 Accept: application/json
+###
+POST {{wumpapi_HostAddress}}/validateauth
+Content-Type: application/json
+
+{
+  "SessionToken": "549d31c7-7e81-488d-9b23-5a872bb0d984"
+}

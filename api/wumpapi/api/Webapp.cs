@@ -113,7 +113,7 @@ public class Webapp
         app.MapPost("/useaility", UseAbilityHandler).WithName("useaility");
     }
 
-    private IResult UseAbilityHandler(ISessionManager sessionManager ,IGameManager gameManger, [FromBody] AbilityRequest request)
+    private IResult UseAbilityHandler(ISessionManager sessionManager ,[FromServices] IGameManager gameManger, [FromBody] AbilityRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
@@ -126,7 +126,7 @@ public class Webapp
     }
 
 
-    private IResult PlayerJoinHandler(ISessionManager sessionManager, IGameManager gameManager, [FromBody] PlayerJoinRequest request)
+    private IResult PlayerJoinHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] PlayerJoinRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
@@ -143,12 +143,12 @@ public class Webapp
     }
 
 
-    private IResult PlayersInGameHandler(IGameManager gameManager)
+    private IResult PlayersInGameHandler([FromServices] IGameManager gameManager)
     {
         return Results.Ok(new PlayerCountResponse(gameManager.GetCurrentGame()!.WaitingPlayers(), Constants.MinimumPlayers));
     }
     
-    private IResult GameStateHandler(IGameManager gameManager)
+    private IResult GameStateHandler([FromServices] IGameManager gameManager)
     {
         return Results.Ok(gameManager.GetGameState());
     }
@@ -158,7 +158,7 @@ public class Webapp
         return Results.Ok(itemRegistry.GetItems());
     }
 
-    private IResult ValidateAuthHandler(ISessionManager sessionManager,[FromBody] ValidateAuthRequest request)
+    private IResult ValidateAuthHandler(ISessionManager sessionManager, [FromBody] ValidateAuthRequest request)
     {
         if (request.SessionToken == null)
         {
@@ -265,7 +265,7 @@ public class Webapp
         }
     }
     
-    private Graph? GraphHandler(GameManager gameManager)
+    private Graph? GraphHandler([FromServices] GameManager gameManager)
     {
         return gameManager.GetCurrentGame()?.Graph();
     }
