@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
 export const handle = async ({ event, resolve }) => {
 	const requestedPath = event.url.pathname;
@@ -21,6 +21,11 @@ export const handle = async ({ event, resolve }) => {
 				'Content-Type': 'application/json'
 			}
 		});
+		if (!authStatus || authStatus.status === 500) {
+			console.error(authStatus);
+			return error(404, 'No response from auth system');
+		}
+
 		body = await authStatus?.json();
 		authed = true;
 

@@ -1,26 +1,16 @@
 <script>
-	const { itemID } = $props();
-
-	let firstLetter = $state('');
-	$effect(() => {
-		firstLetter = itemID[0];
-	});
-	let name = '';
-	$effect(() => {
-		name = String(itemID).split('_')[1];
-	});
-
-	let bgColor = $state('#000000');
-
-	if (firstLetter === 'a') {
-		bgColor = '#ff0000';
-	}
+	const { itemInfo } = $props();
+	console.log(itemInfo);
 </script>
 
 <div class="flex flex-col">
 	<div
-		class="h-20 w-20 rounded-full border-2 border-white p-2"
-		style="background-color: {bgColor}"
+		class="h-16 w-16 rounded-full border-2 border-black p-2"
+		style="background-color: #bb33ff"
 	></div>
-	<span>{name}</span>
+	<span>{itemInfo.name}</span>
+	<span>{itemInfo.price}</span>
+	<span>{itemInfo.buildTime}s</span>
+	<span>{itemInfo.description}</span>
+	<!--  TODO! Format this nicelys -->
 </div>

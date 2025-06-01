@@ -10,18 +10,16 @@
 	const loginCode = String(Math.floor(Math.random() * (999999 - 0 + 1))).padStart(6, '0');
 </script>
 
-<div class="relative flex h-screen w-screen flex-col items-center justify-center">
+<div class="relative flex h-screen w-screen flex-col items-center justify-center bg-zinc-900">
 	{#if modalOpen}
 		<div
-			class="absolute flex h-screen w-screen items-center justify-center bg-gray-400 opacity-80"
+			class="absolute flex h-screen w-screen items-center justify-center bg-zinc-800 opacity-80"
 		></div>
 		<div
-			class="absolute flex w-5/6 max-w-80 flex-col items-center justify-center gap-4 bg-white p-2 text-left"
+			class="absolute flex w-5/6 max-w-80 flex-col items-center justify-center gap-4 bg-white bg-zinc-600 p-2 text-left text-zinc-50"
 		>
 			<h1 class="text-3xl">Login code</h1>
-			<p class="text-slate-600">
-				Screenshot or otherwise save this code, this is your account password
-			</p>
+			<p class="">Screenshot or otherwise save this code, this is your account password</p>
 			<h1 class="text-center">{loginCode}</h1>
 			<button
 				form="loginForm"
@@ -34,7 +32,7 @@
 			>
 		</div>
 	{/if}
-	<div class="flex w-3/4 max-w-96 flex-col rounded-sm border-2 border-gray-300 p-3">
+	<div class="flex w-3/4 max-w-96 flex-col rounded-sm border-2 border-gray-300 p-3 text-zinc-50">
 		<h1 class="pb-2 text-left text-4xl font-bold">Sign up</h1>
 		<form
 			id="loginForm"
@@ -46,6 +44,7 @@
 			<label class="flex flex-col">
 				Email
 				<input
+					class="bg-zinc-700"
 					type="text"
 					name="email"
 					id="email"
@@ -55,7 +54,7 @@
 			</label>
 			<label class="flex flex-col">
 				Username
-				<input type="text" name="uname" id="uname" required />
+				<input class="bg-zinc-700" type="text" name="uname" id="uname" required />
 			</label>
 			<input type="hidden" name="code" value={loginCode} />
 			{#if form?.message}
@@ -63,12 +62,13 @@
 			{/if}
 			<button
 				type="button"
-				class="my-2 border-1 p-2 transition-colors duration-150 hover:bg-blue-300"
+				class="my-2 rounded-sm bg-blue-900 p-2 text-white transition-colors duration-150 hover:bg-blue-800 active:bg-blue-950"
 				onclick={() => (modalOpen = true)}>Next</button
 			>
 		</form>
-		<a href="/account/login" class="pt-2 text-center text-slate-950 hover:text-slate-600"
-			>Or login</a
+		<a
+			href="/account/login"
+			class="pt-2 text-center text-zinc-400 hover:text-zinc-300 active:text-zinc-500">Or login</a
 		>
 	</div>
 </div>

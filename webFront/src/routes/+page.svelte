@@ -6,22 +6,19 @@
 	import { enhance } from '$app/forms';
 	import ItemBar from '$lib/components/ItemBar.svelte';
 
+	import { Zap, Clock, Hammer, ArrowBigLeft, ArrowBigRight } from '@lucide/svelte';
+
 	let graph;
 	let errored = $state(false);
 	let selectedNode = $state(null);
+	let shopOpen = $state(false);
+	let shopPage = $state(0);
 
 	const { data } = $props();
 
 	let crosshairContainer: d3.Selection<SVGGElement, unknown, HTMLElement, any> | null = null;
 
 	const userPowerLevel = $state({ power: 5 });
-
-	setInterval(() => {
-		userPowerLevel.power += 1;
-		if (userPowerLevel.power > 10) {
-			userPowerLevel.power = 0;
-		}
-	}, 1000);
 
 	// Change the crosshair display mode when the selected node state changes
 	$effect(() => {
@@ -33,6 +30,8 @@
 		} else {
 			crosshairContainer.style('display', 'none');
 		}
+
+		console.log(selectedNode);
 	});
 
 	onMount(async () => {
@@ -68,6 +67,93 @@
 
 		// Data loading from the server
 		let data;
+		// setInterval(async () => {
+		// 	try {
+		// 		// Load data with promises
+		// 		const newData = await d3.json('/graph');
+		// 		if (newData == undefined) {
+		// 			errored = true;
+		// 			return;
+		// 		}
+		// 		let node = mainGroup
+		// 			.selectAll('circle')
+		// 			.data(newData.nodes)
+		// 			.join(
+		// 				(enter) =>
+		// 					enter
+		// 						.append('circle')
+		// 						.attr('r', 20)
+		// 						.style('fill', '#69b3a2')
+		// 						.call(drag)
+		// 						.on('mouseover', function () {
+		// 							d3.select(this).transition().duration(50).style('fill', '#00796B');
+		// 						})
+		// 						.on('mouseout', function () {
+		// 							d3.select(this).transition().duration(50).style('fill', '#69b3a2');
+		// 						})
+		// 						.on('click', function (event, d) {
+		// 							selectedNode = d;
+		// 						}),
+		// 				(update) => update, // you could add `.style(...)` here to animate changes
+		// 				(exit) => exit.remove()
+		// 			)
+		// 			// Drag just exists on the nodes
+		// 			.call(drag);
+		// 	} catch (error) {
+		// 		console.error('Error loading data:', error);
+		// 		errored = true;
+		// 		return;
+		// 	}
+
+		// 	// Stinky code duplication
+
+		// 		// Keep reference to selected node
+		// 		const prevSelectedId = selectedNode?.id;
+
+		// 		// Update simulation data
+		// 		simulation.nodes(newData.nodes);
+		// 		simulation.force('link').links(newData.links);
+
+		// 		// Node join
+		// 		node = svg
+		// 			.selectAll('circle')
+		// 			.data(newData.nodes, (d) => d.id)
+		// 			.join(
+		// 				(enter) =>
+		// 					enter
+		// 						.append('circle')
+		// 						.attr('r', 20)
+		// 						.style('fill', '#69b3a2')
+		// 						.call(drag)
+		// 						.on('mouseover', function () {
+		// 							d3.select(this).transition().duration(50).style('fill', '#00796B');
+		// 						})
+		// 						.on('mouseout', function () {
+		// 							d3.select(this).transition().duration(50).style('fill', '#69b3a2');
+		// 						})
+		// 						.on('click', function (event, d) {
+		// 							selectedNode = d;
+		// 						}),
+		// 				(update) => update, // you could add `.style(...)` here to animate changes
+		// 				(exit) => exit.remove()
+		// 			);
+
+		// 		// Link join
+		// 		link = svg
+		// 			.selectAll('line')
+		// 			.data(newData.links)
+		// 			.join(
+		// 				(enter) => enter.append('line').style('stroke', '#aaa'),
+		// 				(update) => update,
+		// 				(exit) => exit.remove()
+		// 			);
+
+		// 		// Re-link selectedNode after data refresh
+		// 		selectedNode = newData.nodes.find((n) => n.id === prevSelectedId) || null;
+
+		// 		// Reheat simulation gently
+		// }, 1000);
+
 		try {
 			// Load data with promises
 			data = await d3.json('/graph');
@@ -106,7 +192,7 @@
 		}
 
 		// Create links
-		const link = mainGroup
+		let link = mainGroup
 			.selectAll('line')
 			.data(data.links)
 			.join('line')
@@ -114,7 +200,7 @@
 			.style('stroke', '#aaa');
 
 		// Create nodes
-		const node = mainGroup
+		let node = mainGroup
 			.selectAll('circle')
 			.data(data.nodes)
 			.join('circle')
@@ -165,8 +251,14 @@
 			node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
 
 			if (selectedNode) {
+				console.log('NODE');
+				console.log(selectedNode.id);
 				// Pull the current position data from our normal dataset to set the position of the crosshair
-				const nodeData = data.nodes.find((n) => n.id === selectedNode.id);
+				const nodeData = data.nodes.find((n) => {
+					console.log(n);
+					return n.id === selectedNode.id;
+				});
+				console.log(nodeData);
 				crosshairContainer
 					.attr('transform', `translate(${nodeData.x}, ${nodeData.y}) scale(2.25)`)
 					.style('display', 'block')
@@ -196,6 +288,93 @@
 		>
 			<ItemBar />
 		</div>
+		<div
+			class="pointer-events-auto absolute left-1/2 flex flex-col items-center transition-all"
+			style="transform: translate(-50%,{shopOpen ? '0' : '-80dvh'});"
+		>
+			<div
+				class="relative grid w-dvw grid-rows-1 overflow-hidden bg-zinc-900"
+				style="height: 80dvh; "
+			>
+				<div
+					class="m-4 flex h-full w-screen flex-row gap-8 transition-all"
+					style="transform: translate({`${-100 * shopPage}dvw`}); width: 500dvw;"
+				>
+					{#each { length: 5 } as _, i}
+						<div
+							class="grid grid-flow-row-dense grid-cols-2 gap-1 overflow-scroll p-1 sm:grid-cols-4"
+							style="width: calc(100vw - 2rem); height: calc(100% - 2rem);"
+						>
+							{#each data.shopItems[i] as item}
+								<div class="">
+									<form
+										action="/shop/buyitem"
+										method="POST"
+										class="flex flex-col items-center rounded-sm border-2 border-zinc-300 bg-zinc-800 p-4 hover:bg-zinc-700"
+									>
+										<button class="flex flex-col items-center text-zinc-50">
+											<div
+												class="h-8 w-8 rounded-full border-2 border-zinc-400 p-2 sm:h-16 sm:w-16"
+												style="background-color: #bb33ff"
+											></div>
+											<div class="flex flex-col items-center">
+												<span>{item.name}</span>
+												<span class="flex flex-row gap-2">
+													<Zap />
+													{item.price}
+
+													<Hammer />
+													{item.buildTime}s
+													<Clock />
+													{item.cooldown ? item.cooldown : '-'}
+												</span>
+												<span>{item.description}</span>
+												<!--  TODO! Format this nicelys -->
+											</div>
+										</button>
+									</form>
+								</div>
+							{/each}
+						</div>
+					{/each}
+				</div>
+
+				<div
+					class="absolute bottom-0 left-1/2 flex w-30 flex-row items-center justify-center rounded-t-2xl bg-zinc-900 text-white"
+					style="transform: translate(-50%,0);"
+				>
+					<div class="">
+						<button
+							class="text-lg"
+							aria-label="next"
+							onclick={() => {
+								shopPage--;
+								shopPage %= 5;
+								if (shopPage < 0) {
+									shopPage = 4;
+								}
+							}}><ArrowBigLeft /></button
+						>
+						<button
+							class="text-lg"
+							aria-label="next"
+							onclick={() => {
+								shopPage++;
+								shopPage %= 5;
+							}}><ArrowBigRight /></button
+						>
+					</div>
+				</div>
+			</div>
+			<button
+				class="pointer-events-auto top-0 w-30 cursor-pointer rounded-b-2xl bg-zinc-900 p-2 text-center text-zinc-50 hover:bg-zinc-800 active:bg-zinc-950"
+				onclick={() => {
+					shopOpen = !shopOpen;
+				}}
+			>
+				SHOP
+			</button>
+		</div>
 	</div>
 
 	{#if selectedNode}
@@ -203,9 +382,9 @@
 			<div class="tooltipWrapper">
 				<button onclick={() => (selectedNode = null)} class="tooltipCloseButton">X</button>
 				<div class="tooltipGrid">
-					<h1 class="tooltipHeader">{selectedNode.user.username}</h1>
+					<h1 class="tooltipHeader">{selectedNode.player.user.username}</h1>
 					<form method="POST" use:enhance action="/graph/debugconnect">
-						<input type="hidden" name="targetUser" value={selectedNode.user.username} />
+						<input type="hidden" name="targetUser" value={selectedNode.player.user.username} />
 						<button class="bg-gray-600 p-2.5 hover:bg-gray-400" type="submit">Connect</button>
 					</form>
 				</div>
@@ -239,7 +418,7 @@
 
 	.wrapper {
 		width: 100dvw;
-		height: 100vh; /* Fancy new CSS unit I didn't know about */
+		height: 100dvh; /* Fancy new CSS unit I didn't know about */
 		position: relative;
 		background-color: #212121;
 	}
