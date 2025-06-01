@@ -50,3 +50,6 @@ Accept: application/json
 ###
 GET {{wumpapi_AlmostProdAddress}}/graph
 Accept: application/json
+###
+GET {{wumpapi_HostAddress}}/iteminfo
+Accept: application/json

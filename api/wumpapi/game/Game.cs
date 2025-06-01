@@ -24,8 +24,12 @@ public class Game(GameSaveData saveData)
         return alliancePlayers.GetValueOrDefault(player);
     }
     
-    public Player GetPlayer(User user)
+    public Player? GetPlayer(User user)
     {
-        throw new NotImplementedException();
+        return players.GetValueOrDefault(user);
+    }
+
+    public void AddSavedPlayers(List<Player> list)
+    {
     }
 }

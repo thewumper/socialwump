@@ -14,6 +14,6 @@ public partial interface IItem
     int BuildTime { get;  }
     string[] conflicts { get; }
     string[] requirements { get; }
-    
 
+    bool IsWork(IItem[] items);
 }

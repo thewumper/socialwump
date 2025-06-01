@@ -4,6 +4,5 @@ namespace wumpapi.Services;
 
 public class GameSaveData
 {
-    public List<Alliance> alliances =  new List<Alliance>();
-    
+    public List<string> SavedAlliances =  new List<string>();
 }

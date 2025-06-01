@@ -16,4 +16,9 @@ public class ItemRegistry : IItemRegistry
     {
         return items.TryGetValue(itemid, out var item) ? DeepCopyUtils.DeepCopy(item) : null;
     }
+
+    public List<IItem> GetItems()
+    {
+        return items.Values.ToList();
+    }
 }
