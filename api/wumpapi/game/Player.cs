@@ -11,9 +11,14 @@ public class Player(User user, Game game)
     public IItem?[] Items = new IItem?[ItemSlots]; 
     public User User { get; } = user;
     public Stats Stats { get; set; } = new Stats();
-    public String AllianceName { get; set; } = "";
+    public string? AllianceName { get; set; }
 
     private Game game = game;
+    
+    public PlayerData ToPlayerData()
+    {
+        return new PlayerData(User.Username,Items.Select(i => i.Id).ToArray(), AllianceName);
+    }
     
     public int GetDamage()
     {

@@ -21,6 +21,7 @@ public class Game
     readonly List<Alliance> alliances = new();
     private readonly Dictionary<Player, Alliance> alliancePlayers = new();
     
+    
     public void AddPlayer(Player player)
     {
         players.Add(player.User, player);
@@ -52,5 +53,10 @@ public class Game
     public GameSaveData Save()
     {
         return new GameSaveData(State, alliances.Select((a) => a.GetName()).ToList());
+    }
+
+    public List<PlayerData> SavePlayers()
+    {
+        return players.Values.Select(p => p.ToPlayerData()).ToList();
     }
 }

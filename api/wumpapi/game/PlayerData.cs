@@ -6,9 +6,17 @@ namespace wumpapi.game;
 public class PlayerData
 {
     public PlayerData(){}
+
+    public PlayerData(string username, string[] items, string? alliance)
+    {
+        Username = username;
+        Items = items;
+        Alliance = alliance;
+    }
+
     private string Username { get; set; }
     private string[] Items { get; set; }
-    private string Alliance { get; set; }
+    private string? Alliance { get; set; }
     
     
     public Player ToPlayer(Game game, IUserRepository userRepository, IItemRegistry itemRegistry)
