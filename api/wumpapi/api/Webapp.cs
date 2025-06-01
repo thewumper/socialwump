@@ -110,7 +110,7 @@ public class Webapp
 
     private void RegisterAtticusEndpoints()
     {
-        app.MapPost("/useaility", UseAbilityHandler).WithName("useaility");
+        app.MapPost("/useability", UseAbilityHandler).WithName("UseAbility");
     }
 
     private IResult UseAbilityHandler(ISessionManager sessionManager ,[FromServices] IGameManager gameManger, [FromBody] AbilityRequest request)
