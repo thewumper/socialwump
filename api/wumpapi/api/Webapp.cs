@@ -91,7 +91,6 @@ public class Webapp
 
     private void RegisterEndpoints()
     {
-        
         app.MapPost("/login", LoginHandler).WithName("login").Produces<LoginResponse>().Produces<ErrorResponse>(StatusCodes.Status401Unauthorized);
         app.MapPost("/logout", LogoutHandler).WithName("logout").Produces<Ok>().Produces<ErrorResponse>(StatusCodes.Status401Unauthorized);
         // TODO: add all the proper codes
