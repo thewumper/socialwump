@@ -7,8 +7,7 @@ namespace wumpapi.game;
 /// </summary>
 public class Player(User user, Game game)
 {
-    private const int ItemSlots = 5;
-    public IItem?[] Items = new IItem?[ItemSlots]; 
+    public IItem?[] Items = new IItem?[Constants.ItemSlots]; 
     public User User { get; } = user;
     public Stats Stats { get; set; } = new Stats();
     public string? AllianceName { get; set; }

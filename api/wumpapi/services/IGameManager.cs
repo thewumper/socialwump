@@ -10,8 +10,8 @@ public interface IGameManager
     public void AutoSave(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry);
     public void Shutdown(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry);
     public Game GetActiveGame();
-    public GameState GetGameState();
-    public Player AddPlayer(User user);
+    public GameState? GetGameState();
+    public Player? AddPlayer(User user);
 }
 
 public enum GameState

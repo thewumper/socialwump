@@ -23,10 +23,12 @@ public class Webapp
         WebApplicationBuilder builder = CreateBuilder(args);
         AddServices(builder);
         app = builder.Build();
-        RegisterObjects(app.Services.GetService<IItemRegistry>()!);
+        RegisterObjects();
         SetupApi();
+        StartGame();
     }
-    
+
+
 
 
     private WebApplicationBuilder CreateBuilder(string[] args)
@@ -47,12 +49,13 @@ public class Webapp
         builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         builder.Services.AddSingleton<ISessionManager, SessionManager>();
         builder.Services.AddSingleton<IPlayerStats, PlayerStats>();
+        builder.Services.AddSingleton<IGameManager, GameManager>();
         builder.Services.AddSingleton<IItemRegistry, ItemRegistry>();
     }
     
-    private void RegisterObjects(IItemRegistry itemRegistry)
+    private void RegisterObjects()
     {
-        ItemRegisterer.RegisterItems(itemRegistry);
+        ItemRegisterer.RegisterItems(app.Services.GetService<IItemRegistry>()!);
         // do more registration here
     }
     
@@ -64,6 +67,10 @@ public class Webapp
         }
         app.UseHttpsRedirection();
         RegisterEndpoints();
+    }
+    private void StartGame()
+    {
+        app.Services.GetService<IGameManager>()!.Startup(app.Services.GetService<INeo4jDataAccess>()!,app.Services.GetService<IUserRepository>()!, app.Services.GetService<IItemRegistry>()!);
     }
 
     private void RegisterEndpoints()
@@ -81,6 +88,12 @@ public class Webapp
         app.MapGet("/getLeaderboard", GetLeaderboardHandler).WithName("GetLeaderboard");
         app.MapPost("/validateauth", ValidateAuthHandler).WithName("ValidateAuth");
         app.MapGet("/iteminfo", ItemInfoHandler).WithName("ItemInfo");
+        app.MapGet("/gamestate", GameStateHandler).WithName("GameState");
+    }
+
+    private IResult GameStateHandler(IGameManager gameManager)
+    {
+        return Results.Ok(gameManager.GetGameState());
     }
 
     private IResult ItemInfoHandler(IItemRegistry itemRegistry)

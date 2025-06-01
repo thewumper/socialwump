@@ -14,14 +14,14 @@ public class PlayerData
         Alliance = alliance;
     }
 
-    private string Username { get; set; }
-    private string[] Items { get; set; }
-    private string? Alliance { get; set; }
+    public string Username { get; set; }
+    public string[] Items { get; set; }
+    public string? Alliance { get; set; }
     
     
     public Player ToPlayer(Game game, IUserRepository userRepository, IItemRegistry itemRegistry)
     {
-        Player player =  new Player(userRepository.GetUser(Username).Result, game);
+        Player player = new Player(userRepository.GetUser(Username).Result, game);
         IItem?[] items = new IItem[Items.Length];
         for (int i = 0; i < Items.Length; i++)
         {

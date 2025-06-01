@@ -2,6 +2,23 @@ namespace wumpapi.utils;
 
 public static class Utils
 {
+    public static void RunAfterDelay(Action action, TimeSpan delay, ILogger logger)
+    {
+        Task.Run(async () =>
+        {
+            await Task.Delay(delay);
+            action();
+        }).ContinueWith(t =>
+        {
+            if (t.IsFaulted)
+            {
+                logger.LogError($"Task failed: {t.Exception}");
+            }
+        }, TaskScheduler.Default);
+    }
+    
+    
+    
     /// <summary>
     /// Recursively convert a dictionary to an object, Dictionary keys should match objects properties.
     /// </summary>
