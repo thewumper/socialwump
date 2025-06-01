@@ -67,7 +67,7 @@ public class Stats
         }
     }
 }
-public class StatModifier(StatModifierType modifierType, Dictionary<StatType, Modifier> modifiers)
+public class StatModifier(Dictionary<StatType, Modifier> modifiers)
 {
     public Dictionary<StatType, Modifier> Modifiers { get; } = modifiers;
 }
