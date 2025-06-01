@@ -1,3 +1,5 @@
+using wumpapi.game.Items.interfaces;
+
 namespace wumpapi.game.Items.genericitems;
 
 public class TargetedConsumableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements, float cooldown, TargetableItem.UseDelegate onUse, int maxUses) 

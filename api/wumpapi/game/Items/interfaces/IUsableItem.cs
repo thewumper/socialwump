@@ -1,7 +1,6 @@
-namespace wumpapi.game.Items;
+namespace wumpapi.game.Items.interfaces;
 
-public interface IUsableItem : IItem
+public interface IUsableItem : ICooldownItem
 {
-    float Cooldown { get; }
     bool Use(Player activator);
 }

@@ -1,4 +1,3 @@
-using MemoryPack;
 
 namespace wumpapi.game.Items.genericitems;
 public class StatModifyingItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements,  StatModifier statModifier)

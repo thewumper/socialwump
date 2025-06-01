@@ -1,4 +1,3 @@
-using MemoryPack;
 
 namespace wumpapi.game.Items.genericitems;
 public class ConsumableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] requirements, string[] conflicts, float cooldown, UsableItem.UseDelegate onUse, int maxUses)
@@ -29,6 +28,5 @@ public class ConsumableItem(string name, string id, ItemClassType classType, str
             return false;
         }
     }
-    [MemoryPackInclude]
     public int RemainingUses { get; private set;  } = maxUses;
 }

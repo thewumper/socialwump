@@ -1,4 +1,4 @@
-namespace wumpapi.game.Items;
+namespace wumpapi.game.Items.interfaces;
 
 public interface ITargetedConsumableItem : ITargetableItem
 {

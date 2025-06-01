@@ -1,4 +1,3 @@
-using MemoryPack;
 
 namespace wumpapi.game.Items.genericitems;
 

@@ -1,17 +1,18 @@
+using wumpapi.game.Items.interfaces;
+
 namespace wumpapi.game.Items.genericitems;
 
 public class UsableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements, float cooldown, UsableItem.UseDelegate onUse) 
-    : Item(name, id, classType, description, price, buildTime, conflicts, requirements), IUsableItem
+    : CooldownItem(name, id, classType, description, price, buildTime, conflicts, requirements, cooldown), IUsableItem
 {
-    public float Cooldown { get; } = cooldown;
-    private DateTime lastUse;
-    public bool Use(Player activator)
+    public new bool Use(Player activator)
     {
-        if (lastUse.AddSeconds(Cooldown) > DateTime.Now) return false;
-        
-        lastUse = DateTime.Now;
-        return onUse.Invoke(activator);
-
+        if (!IsUsable(activator)) return false;
+        if (onUse.Invoke(activator))
+        {
+            base.Use(activator);
+        }
+        return false;
     }
     public delegate bool UseDelegate(Player activator);
 }
