@@ -154,6 +154,28 @@ public class Webapp
                             }
                         }
                     }
+                    else
+                    {
+                        if (itemToUse is ITargetableItem targetableItem)
+                        {
+                            Player? targetPlayer = currentGame.GetPlayer(target);
+                            if (targetPlayer != null)
+                            {
+                                if (targetableItem.Use(player, targetPlayer))
+                                {
+                                    return Results.Ok();
+                                }
+                                else
+                                {
+                                    return Results.BadRequest("Item failed to use, maybe it's on cooldown");
+                                }
+                            }
+                            else
+                            {
+                                return Results.BadRequest("Target player doesn't exist");
+                            }
+                        }
+                    }
                     
                     return Results.Ok();
                 }
