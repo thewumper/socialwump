@@ -117,6 +117,88 @@ public class Webapp
         app.MapPost("/sellItem", SellItemHandler).WithName("SellItemHandler");
         app.MapPost("/getplayer", GetPlayerHandler).WithName("GetPlayer");
         app.MapPost("/sharepower", PowerShareHandler).WithName("SharePower");
+        app.MapPost("/shareitem", ItemShareHandler).WithName("ShareItem");
+
+    }
+
+    private async Task<IResult> ItemShareHandler(ISessionManager sessionManager, IUserRepository userRepository, [FromServices] IGameManager gameManger, [FromBody] ItemShareRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            Game? currentGame = gameManger.GetCurrentGame();
+            if (currentGame != null)
+            {
+                User user = sessionManager.GetAuthedUser(request.SessionToken);
+                Player? player = currentGame.GetPlayer(user);
+                if (player != null)
+                {
+                    User target;
+                    try
+                    {
+                        target = await userRepository.GetUser(request.Username);
+                    }
+                    catch (UserNotFoundException e)
+                    {
+                        return Results.BadRequest("Invalid target");
+                    }
+
+                    if (target.Username == user.Username)
+                    {
+                        return Results.BadRequest("You cannot give power to yourself!");
+                    }
+
+                    Player? targetPlayer = currentGame.GetPlayer(target);
+                    if (targetPlayer != null)
+                    {
+                        if (request.Slot >= 0 && request.Slot < player.Items.Length && player.Items[request.Slot] != null)
+                        {
+                            int firstEmptySlot = -1;
+                            for (int i = 0; i < targetPlayer.Items.Length; i++)
+                            {
+                                if (targetPlayer.Items[i] == null)
+                                {
+                                    firstEmptySlot = i;
+                                    break;
+                                }
+                            }
+
+                            if (firstEmptySlot == -1)
+                            {
+                                return Results.BadRequest(new ErrorResponse("The recipient does not have space"));
+                            }
+                            else
+                            {
+                                player.Items[firstEmptySlot] = player.Items[request.Slot];
+                                player.Items[request.Slot] = null;
+                                return Results.Ok();
+                            }
+                        }
+                        else
+                        {
+                            return Results.BadRequest(new ErrorResponse("Invalid inventory slot"));
+                        }
+                        return Results.Ok();
+                    }
+                    else
+                    {
+                        return Results.BadRequest(new ErrorResponse("Target player doesn't exist"));
+                    }
+                    
+                }
+                else
+                {
+                    return Results.BadRequest(new ErrorResponse("Player is not in the game"));
+                }
+            }
+            else
+            {
+                return Results.BadRequest(new ErrorResponse("Game not started"));
+            }
+        }
+        else
+        {
+            return Results.BadRequest(new ErrorResponse("Invalid Session"));
+        }
     }
 
 
@@ -244,7 +326,7 @@ public class Webapp
                     User target;
                     try
                     {
-                        target = await userRepository.GetUser(request.username);
+                        target = await userRepository.GetUser(request.Username);
                     }
                     catch (UserNotFoundException e)
                     {
@@ -259,12 +341,12 @@ public class Webapp
                     Player? targetPlayer = currentGame.GetPlayer(target);
                     if (targetPlayer != null)
                     {
-                        if (request.powerAmount >= player.Stats.CurrentStats[StatType.Power])
+                        if (request.PowerAmount >= player.Stats.CurrentStats[StatType.Power])
                         {
                             return Results.BadRequest("Cannot give more power than you have!");
                         }
                         
-                        float finalPowerAmount = Math.Min(request.powerAmount, targetPlayer.Stats.CurrentStats[StatType.MaxPower] - targetPlayer.Stats.CurrentStats[StatType.Power]);
+                        float finalPowerAmount = Math.Min(request.PowerAmount, targetPlayer.Stats.CurrentStats[StatType.MaxPower] - targetPlayer.Stats.CurrentStats[StatType.Power]);
                         
                         player.Stats.CurrentStats[StatType.Power] -= finalPowerAmount;
                         targetPlayer.Stats.CurrentStats[StatType.Power] += finalPowerAmount;

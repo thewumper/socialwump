@@ -42,4 +42,5 @@ public record ShopSellRequest([Required] string SessionToken, [Required] int Ite
 
 public record ShopPurchaseResponse([Required] IItem Item);
 
-public record PowerShareRequest([Required] string SessionToken, [Required] string username, [Required] int powerAmount);
+public record PowerShareRequest([Required] string SessionToken, [Required] string Username, [Required] int PowerAmount);
+public record ItemShareRequest([Required] string SessionToken, [Required] string Username, [Required] int Slot);
