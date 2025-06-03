@@ -9,10 +9,10 @@
 
 	onMount(async () => {
 		setInterval(async () => {
-			const resp = await fetch('/waiting/getPlayerCount');
+			const resp = await fetch('/game/waiting/getPlayerCount');
 			const json = await resp.json();
 
-			const resp2 = await fetch('/waiting/getGameState');
+			const resp2 = await fetch('/game/waiting/getGameState');
 			const json2 = await resp2.json();
 
 			playerCount = json.players;
@@ -28,7 +28,7 @@
 <div class="flex h-dvh w-dvw flex-col items-center justify-center gap-2 bg-zinc-900 text-zinc-50">
 	<h1 class="text-3xl">Waiting for players</h1>
 	<div class="flex flex-row justify-baseline gap-1">
-		<span class="inline-block text-3xl">Curently at:</span>
+		<span class="inline-block text-3xl">Currently at:</span>
 		<span class="text-4xl font-bold">{playerCount}/{requiredCount}</span>
 	</div>
 

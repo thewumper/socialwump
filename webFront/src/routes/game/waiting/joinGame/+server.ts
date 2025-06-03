@@ -13,8 +13,6 @@ export async function POST({ locals, request, fetch }) {
 		}
 	});
 
-	console.log(join);
-
 	return new Response(JSON.stringify({}), {
 		headers: {
 			'Content-Type': 'application/json'

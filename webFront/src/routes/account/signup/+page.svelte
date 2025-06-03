@@ -16,7 +16,7 @@
 			class="absolute flex h-screen w-screen items-center justify-center bg-zinc-800 opacity-80"
 		></div>
 		<div
-			class="absolute flex w-5/6 max-w-80 flex-col items-center justify-center gap-4 bg-white bg-zinc-600 p-2 text-left text-zinc-50"
+			class="absolute flex w-5/6 max-w-80 flex-col items-center justify-center gap-4 bg-zinc-600 p-2 text-left text-zinc-50"
 		>
 			<h1 class="text-3xl">Login code</h1>
 			<p class="">Screenshot or otherwise save this code, this is your account password</p>

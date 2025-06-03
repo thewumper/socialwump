@@ -1,6 +1,5 @@
 <script>
 	const { itemInfo } = $props();
-	console.log(itemInfo);
 </script>
 
 <div class="flex flex-col">

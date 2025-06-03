@@ -35,12 +35,6 @@ export const handle = async ({ event, resolve }) => {
 		}
 	}
 
-	if (!authed) {
-		if (!requestedPath.startsWith('/account')) {
-			return redirect(303, 'account/login');
-		}
-	}
-
 	// Everyone here should be logged in
 
 	if (authed) {
