@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -7,9 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Neo4j.Driver;
 using wumpapi.configuration;
 using wumpapi.game;
+using wumpapi.game.events;
 using wumpapi.game.Items;
+using wumpapi.game.Items.genericitems;
 using wumpapi.game.Items.interfaces;
 using wumpapi.neo4j;
+using wumpapi.services;
 using wumpapi.Services;
 using wumpapi.structures;
 using wumpapi.utils;
@@ -34,8 +35,6 @@ public class Webapp
     }
 
 
-
-
     private WebApplicationBuilder CreateBuilder(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args); 
@@ -56,6 +55,7 @@ public class Webapp
         builder.Services.AddSingleton<IPlayerStats, PlayerStats>();
         builder.Services.AddSingleton<IGameManager, GameManager>();
         builder.Services.AddSingleton<IItemRegistry, ItemRegistry>();
+        builder.Services.AddSingleton<IEventManager, EventManager>();
     }
     
     private void RegisterObjects()
@@ -78,11 +78,28 @@ public class Webapp
         Task.Run(async () =>
         {
             var scope = app.Services.CreateAsyncScope();
+            IGameManager gameManager;
             try
             {
                 var service = scope.ServiceProvider;
-                await app.Services.GetService<IGameManager>()!.Startup(service.GetService<INeo4jDataAccess>()!,
-                    service.GetRequiredService<IUserRepository>()!, service.GetRequiredService<IItemRegistry>()!);
+                gameManager = service.GetRequiredService<IGameManager>();
+                INeo4jDataAccess neo4JDataAccess = service.GetRequiredService<INeo4jDataAccess>()!;
+                IUserRepository userRepository = service.GetRequiredService<IUserRepository>()!;
+                IItemRegistry itemRegistry = service.GetRequiredService<IItemRegistry>()!;
+                IEventManager eventManager = service.GetRequiredService<IEventManager>()!;
+                await gameManager.Startup(neo4JDataAccess, userRepository,
+                    itemRegistry, eventManager);
+                RepeatingVariableDelayExecutor autosaver = new RepeatingVariableDelayExecutor(() =>
+                {
+                    // not variable right now, but might want to detect how long since the last thing happened and save on a good interval based on that
+                    gameManager.AutoSave(neo4JDataAccess, userRepository, itemRegistry);
+                    return TimeSpan.FromSeconds(5); // If this breaks something somehow, REALLY break something
+                },TimeSpan.FromMinutes(1),app.Logger);
+                app.Lifetime.ApplicationStopping.Register(() =>
+                {
+                    autosaver.Stop();
+                    gameManager.Shutdown(neo4JDataAccess, userRepository, itemRegistry);
+                });
             }
             finally
             {
@@ -118,10 +135,16 @@ public class Webapp
         app.MapPost("/getplayer", GetPlayerHandler).WithName("GetPlayer");
         app.MapPost("/sharepower", PowerShareHandler).WithName("SharePower");
         app.MapPost("/shareitem", ItemShareHandler).WithName("ShareItem");
-
+        app.MapPost("/events", EventsHandler).WithName("events");
+        
     }
 
-    private async Task<IResult> ItemShareHandler(ISessionManager sessionManager, IUserRepository userRepository, [FromServices] IGameManager gameManger, [FromBody] ItemShareRequest request)
+    private IResult EventsHandler(IEventManager eventManager,[FromBody] EventRequest request)
+    {
+        return Results.Ok(eventManager.GetEvents(request.lastEvent));
+    }
+
+    private async Task<IResult> ItemShareHandler(ISessionManager sessionManager, IUserRepository userRepository, [FromServices] IGameManager gameManger, IEventManager events, [FromBody] ItemShareRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
@@ -168,8 +191,18 @@ public class Webapp
                             }
                             else
                             {
-                                player.Items[firstEmptySlot] = player.Items[request.Slot];
+                                if (player.Items[request.Slot] == null)
+                                {
+                                    return Results.BadRequest(new ErrorResponse("You can't give an item you don't have"));
+                                }
+                                targetPlayer.Items[firstEmptySlot] = player.Items[request.Slot];
                                 player.Items[request.Slot] = null;
+                                
+                                player.Stats.UpdateFromItems(player.Items);
+                                targetPlayer.Stats.UpdateFromItems(player.Items);
+                                events.SendEvent(new PlayerInventoryUpdateEvent(player));
+                                events.SendEvent(new PlayerInventoryUpdateEvent(targetPlayer));
+                                events.SendEvent(new PlayerShareItemEvent(player, targetPlayer, targetPlayer.Items[firstEmptySlot]!));
                                 return Results.Ok();
                             }
                         }
@@ -177,7 +210,6 @@ public class Webapp
                         {
                             return Results.BadRequest(new ErrorResponse("Invalid inventory slot"));
                         }
-                        return Results.Ok();
                     }
                     else
                     {
@@ -231,7 +263,7 @@ public class Webapp
         }
     }
 
-    private async Task<IResult> UseAbilityHandler(ISessionManager sessionManager,IUserRepository userRepository ,[FromServices] IGameManager gameManger, [FromBody] AbilityRequest request)
+    private async Task<IResult> UseAbilityHandler(ISessionManager sessionManager,IUserRepository userRepository ,[FromServices] IGameManager gameManger, IEventManager events, [FromBody] AbilityRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
@@ -263,6 +295,7 @@ public class Webapp
                         {
                             if (usableItem.Use(player))
                             {
+                                events.SendEvent(new PlayerUseItemEvent(player, null, usableItem, Items.IsPositive(usableItem)));
                                 return Results.Ok();
                             }
                             else
@@ -280,6 +313,7 @@ public class Webapp
                             {
                                 if (targetableItem.Use(player, targetPlayer))
                                 {
+                                    events.SendEvent(new PlayerUseItemEvent(player, targetPlayer, targetableItem, Items.IsPositive(targetableItem)));
                                     return Results.Ok();
                                 }
                                 else
@@ -312,7 +346,7 @@ public class Webapp
         }
     }
 
-    private async Task<IResult> PowerShareHandler (ISessionManager sessionManager, IUserRepository userRepository, [FromServices] IGameManager gameManger, [FromBody] PowerShareRequest request)
+    private async Task<IResult> PowerShareHandler (ISessionManager sessionManager, IUserRepository userRepository, [FromServices] IGameManager gameManger, IEventManager events, [FromBody] PowerShareRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
@@ -341,15 +375,20 @@ public class Webapp
                     Player? targetPlayer = currentGame.GetPlayer(target);
                     if (targetPlayer != null)
                     {
-                        if (request.PowerAmount >= player.Stats.CurrentStats[StatType.Power])
+                        if (request.PowerAmount >= player.Stats.Power)
                         {
                             return Results.BadRequest("Cannot give more power than you have!");
                         }
                         
-                        float finalPowerAmount = Math.Min(request.PowerAmount, targetPlayer.Stats.CurrentStats[StatType.MaxPower] - targetPlayer.Stats.CurrentStats[StatType.Power]);
+                        int finalPowerAmount = (int)(Math.Min(request.PowerAmount + targetPlayer.Stats.Power, targetPlayer.Stats.CurrentStats[StatType.MaxPower]));
+
+                        int actualExchange = finalPowerAmount - targetPlayer.Stats.Power;
+                        player.Stats.Power -= actualExchange;
+                        targetPlayer.Stats.Power += actualExchange;
+                        events.SendEvent(new PlayerUpdatePowerEvent(player, player.Stats.Power));
+                        events.SendEvent(new PlayerUpdatePowerEvent(targetPlayer, targetPlayer.Stats.Power));
+                        events.SendEvent(new PlayerSharePowerEvent(player, targetPlayer, actualExchange));
                         
-                        player.Stats.CurrentStats[StatType.Power] -= finalPowerAmount;
-                        targetPlayer.Stats.CurrentStats[StatType.Power] += finalPowerAmount;
                         return Results.Ok();
                     }
                     else
@@ -374,13 +413,16 @@ public class Webapp
         }
     }
 
-    private IResult PlayerJoinHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] PlayerAuthRequest request)
+    private IResult PlayerJoinHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, IEventManager events, [FromBody] PlayerAuthRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
             User user = sessionManager.GetAuthedUser(request.SessionToken);
-            Player player = gameManager.AddPlayer(user);
-
+            Player? player = gameManager.AddPlayer(user,events);
+            if (player == null)
+            {
+                return Results.BadRequest(new ErrorResponse("Can't join player. Game is probably not initialized"));
+            }
             return Results.Ok(new PlayerJoinResponse(player, user));
         }
         else
@@ -390,7 +432,7 @@ public class Webapp
         
     }
     
-    private IResult CreateAllianceHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] AllianceRequest request)
+    private IResult CreateAllianceHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, IEventManager events, [FromBody] AllianceRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
@@ -405,7 +447,9 @@ public class Webapp
                     return Results.BadRequest(new ErrorResponse("Player has not joined yet!"));
                 }
                 
-                return Results.Ok(new AllianceResponse(gameManager.GetActiveGame().CreateAlliance(request.AllianceName, player)!));
+                Alliance alliance = gameManager.GetActiveGame().CreateAlliance(request.AllianceName, player)!;
+                events.SendEvent(new AllianceCreatedEvent(alliance));
+                return Results.Ok(new AllianceResponse(alliance));
             }
             catch (InvalidOperationException e)
             {
@@ -418,7 +462,36 @@ public class Webapp
         }
     }
     
-    private IResult JoinAllianceHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] AllianceRequest request)
+    private IResult JoinAllianceHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, IEventManager events, [FromBody] AllianceRequest request)
+    {
+        if (sessionManager.IsSessionValid(request.SessionToken))
+        {
+            User user = sessionManager.GetAuthedUser(request.SessionToken);
+
+            try
+            {
+                Player? player = gameManager.GetActiveGame().GetPlayer(user);
+
+                if (player == null)
+                {
+                    return Results.BadRequest(new ErrorResponse("Player has not joined yet!"));
+                }
+                Alliance alliance = gameManager.GetActiveGame().JoinAlliance(request.AllianceName, player)!;
+                events.SendEvent(new PlayerJoinAllianceEvent(player,alliance));
+                return Results.Ok(new AllianceResponse(alliance));
+            }
+            catch (InvalidOperationException e)
+            {
+                return Results.BadRequest(new ErrorResponse(e.Message));
+            }
+        }
+        else
+        {
+            return Results.BadRequest(new ErrorResponse("Invalid Session"));
+        }
+    }
+    
+    private IResult LeaveAllianceHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, IEventManager events, [FromBody] AllianceLeaveRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
@@ -433,35 +506,12 @@ public class Webapp
                     return Results.BadRequest(new ErrorResponse("Player has not joined yet!"));
                 }
                 
-                return Results.Ok(new AllianceResponse(gameManager.GetActiveGame().JoinAlliance(request.AllianceName, player)!));
-            }
-            catch (InvalidOperationException e)
-            {
-                return Results.BadRequest(new ErrorResponse(e.Message));
-            }
-        }
-        else
-        {
-            return Results.BadRequest(new ErrorResponse("Invalid Session"));
-        }
-    }
-    
-    private IResult LeaveAllianceHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromBody] AllianceLeaveRequest request)
-    {
-        if (sessionManager.IsSessionValid(request.SessionToken))
-        {
-            User user = sessionManager.GetAuthedUser(request.SessionToken);
-
-            try
-            {
-                Player? player = gameManager.GetActiveGame().GetPlayer(user);
-
-                if (player == null)
+                Alliance? alliance = gameManager.GetActiveGame().LeaveAlliance(player);
+                if (alliance == null)
                 {
-                    return Results.BadRequest(new ErrorResponse("Player has not joined yet!"));
+                    return Results.BadRequest(new ErrorResponse("Playe is not in an alliance"));
                 }
-
-                gameManager.GetActiveGame().LeaveAlliance(player);
+                events.SendEvent(new PlayerLeaveAlliance(player, alliance));
                 return Results.Ok();
             }
             catch (InvalidOperationException e)
@@ -474,7 +524,7 @@ public class Webapp
             return Results.BadRequest(new ErrorResponse("Invalid Session"));
         }
     }
-    private IResult SellItemHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromServices] IItemRegistry itemRegistry, [FromBody] ShopSellRequest request)
+    private IResult SellItemHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromServices] IItemRegistry itemRegistry, IEventManager events, [FromBody] ShopSellRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
@@ -494,8 +544,10 @@ public class Webapp
                 }
                 else
                 {
-                    player.Stats.CurrentStats[StatType.Power] = float.Min(float.Floor(itemToSell.Price * 0.7f), player.Stats.CurrentStats[StatType.MaxPower]);
+                    player.Stats.Power = int.Min((int)Math.Floor(itemToSell.Price * 0.7f), (int)player.Stats.CurrentStats[StatType.MaxPower]);
                     player.Items[request.ItemSlot] = null;
+                    events.SendEvent(new PlayerInventoryUpdateEvent(player));
+                    events.SendEvent(new PlayerUpdatePowerEvent(player, player.Stats.Power));
                     return Results.Ok();
                 }
             }
@@ -507,7 +559,7 @@ public class Webapp
             return Results.BadRequest(new ErrorResponse("Invalid Session"));
         }
     }
-    private IResult ShopPurchaseHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromServices] IItemRegistry itemRegistry, [FromBody] ShopPurchaseRequest request)
+    private IResult ShopPurchaseHandler(ISessionManager sessionManager, [FromServices] IGameManager gameManager, [FromServices] IItemRegistry itemRegistry, IEventManager events, [FromBody] ShopPurchaseRequest request)
     {
         if (sessionManager.IsSessionValid(request.SessionToken))
         {
@@ -523,12 +575,27 @@ public class Webapp
             
             for (int i = 0; i < player!.Items.Length; i++)
             {
-                if (player.Items[i] == null && player.Stats.CurrentStats[StatType.Power] > preCopyItem.Price + 1)
+                if (player.Items[i] == null && player.Stats.Power > preCopyItem.Price + 1)
                 {
-                    player.Stats.CurrentStats[StatType.Power] -= preCopyItem.Price;
+                    player.Stats.Power -= preCopyItem.Price;
                     IItem copiedItem = DeepCopyUtils.DeepCopy(preCopyItem);
                     player.Stats.UpdateFromItems(player.Items!);
-                    return Results.Ok(new ShopPurchaseResponse(copiedItem));
+
+                    IInProgressItem inProgressItem = new InProgressItem(player, copiedItem);
+                    player.Items[i] = inProgressItem;
+                    
+                    events.SendEvent(new PlayerUpdatePowerEvent(player, player.Stats.Power));
+                    events.SendEvent(new PlayerInventoryUpdateEvent(player));
+                    events.SendEvent(new PlayerStartMakingItemEvent(player, inProgressItem));
+                    Utils.RunAfterDelay( ()=>
+                    {
+                        if (player.Items[i] != inProgressItem) return;
+                        player.Items[i] = copiedItem;
+                        events.SendEvent(new PlayerInventoryUpdateEvent(player));
+                        events.SendEvent(new PlayerFinishMakingItemEvent(player, copiedItem));
+                    }, TimeSpan.FromSeconds(copiedItem.BuildTime), app.Logger);
+                    
+                    return Results.Ok(new ShopPurchaseResponse(inProgressItem));
                 }
             }
             return Results.BadRequest("Unable to purchase item!");

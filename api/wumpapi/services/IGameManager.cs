@@ -1,5 +1,6 @@
 using wumpapi.game;
 using wumpapi.neo4j;
+using wumpapi.services;
 using wumpapi.structures;
 
 namespace wumpapi.Services;
@@ -8,12 +9,12 @@ namespace wumpapi.Services;
 /// </summary>
 public interface IGameManager
 {
-    public Task Startup(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry);
+    public Task Startup(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry, IEventManager eventManager);
     public void AutoSave(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry);
     public void Shutdown(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry);
     public Game GetActiveGame();
     public GameState? GetGameState();
-    public Player AddPlayer(User user);
+    public Player? AddPlayer(User user, IEventManager eventManager);
     Game? GetCurrentGame();
 }
 

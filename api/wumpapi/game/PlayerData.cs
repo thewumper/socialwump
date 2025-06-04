@@ -1,4 +1,5 @@
 using wumpapi.neo4j;
+using wumpapi.services;
 using wumpapi.Services;
 
 namespace wumpapi.game;
@@ -21,9 +22,9 @@ public class PlayerData
     public string? Alliance { get; set; }
     
     
-    public Player ToPlayer(Game game, IUserRepository userRepository, IItemRegistry itemRegistry)
+    public Player ToPlayer(Game game, IUserRepository userRepository, IItemRegistry itemRegistry, IEventManager eventManager)
     {
-        Player player = new Player(userRepository.GetUser(Username).Result, game);
+        Player player = new Player(userRepository.GetUser(Username).Result, game, eventManager);
         IItem?[] items = new IItem[Items.Length];
         for (int i = 0; i < Items.Length; i++)
         {

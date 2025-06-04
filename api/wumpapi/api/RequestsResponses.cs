@@ -44,3 +44,4 @@ public record ShopPurchaseResponse([Required] IItem Item);
 
 public record PowerShareRequest([Required] string SessionToken, [Required] string Username, [Required] int PowerAmount);
 public record ItemShareRequest([Required] string SessionToken, [Required] string Username, [Required] int Slot);
+public record EventRequest([Required] long lastEvent);

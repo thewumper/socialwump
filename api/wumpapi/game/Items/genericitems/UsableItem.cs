@@ -26,5 +26,6 @@ public class UsableItem(string name, string id, ItemClassType classType, string 
         }
         return false;
     }
+    
     public delegate bool UseDelegate(Player activator);
 }

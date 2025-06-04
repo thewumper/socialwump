@@ -1,0 +1,8 @@
+using wumpapi.game.Items.interfaces;
+
+namespace wumpapi.game.Items.genericitems;
+
+public class PositiveConsumableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] requirements, string[] conflicts, float cooldown, UsableItem.UseDelegate onUse, int maxUses) : ConsumableItem(name, id, classType, description, price, buildTime, requirements, conflicts, cooldown, onUse, maxUses), IPositiveItem;
+public class PositiveTargetedConsumableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements, float cooldown, TargetableItem.UseDelegate onUse, int maxUses) : TargetedConsumableItem(name, id, classType, description, price, buildTime, conflicts, requirements, cooldown, onUse, maxUses), IPositiveItem;
+public class PositiveTargetableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] requirements, string[] conflicts, float cooldown, TargetableItem.UseDelegate onUse) : TargetableItem(name, id, classType, description, price, buildTime, requirements, conflicts, cooldown, onUse), IPositiveItem;
+public class PositiveUsableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements, float cooldown, UsableItem.UseDelegate onUse) : UsableItem(name, id, classType, description, price, buildTime, conflicts, requirements, cooldown, onUse), IPositiveItem;

@@ -1,12 +1,15 @@
+using wumpapi.game.events;
 using wumpapi.game.Items;
+using wumpapi.services;
 using wumpapi.structures;
 
 namespace wumpapi.game;
 /// <summary>
 /// Player in a game, linked to a user
 /// </summary>
-public class Player(User user, Game game)
+public class Player(User user, Game game, IEventManager events)
 {
+    private IEventManager events = events;
     public IItem?[] Items = new IItem?[Constants.ItemSlots]; 
     public User User { get; } = user;
     public Stats Stats { get; set; } = new Stats();
@@ -26,7 +29,7 @@ public class Player(User user, Game game)
         return (int)Math.Round(currentAttackDamage, MidpointRounding.AwayFromZero);
     }
     
-    public int TakeDamage(int damage)
+    public int TakeDamage(int damage,Player? playerSource=null)
     {
         // Take damage with the damage resistance amount removed from the total damage
         float damageResistance = Math.Min(Stats.CurrentStats[StatType.DamageResistance], 1.0f);
@@ -49,7 +52,7 @@ public class Player(User user, Game game)
                 totalDamageSharePercentage += playerDamageShare;
                 
                 // Take the absorbed damage from the other player
-                player.Stats.CurrentStats[StatType.Power] -= (int)Math.Round(damageTaken * playerDamageShare, MidpointRounding.AwayFromZero);
+                player.Stats.Power -= (int)Math.Round(damageTaken * playerDamageShare, MidpointRounding.AwayFromZero);
             }
         }
 
@@ -58,18 +61,18 @@ public class Player(User user, Game game)
         // Actually deal the damage
         int finalDamage =
             (int)Math.Round(damageTaken * (1 - totalDamageSharePercentage), MidpointRounding.AwayFromZero);
-        Stats.CurrentStats[StatType.Power] -= finalDamage;
+        Stats.Power -= finalDamage;
 
         // We're dead!
-        if (Stats.CurrentStats[StatType.Power] <= 0)
+        if (Stats.Power <= 0)
         {
-            KillPlayer();
+            KillPlayer(playerSource);
         }
-        
+        events.SendEvent(new PlayerUpdatePowerEvent(this, Stats.Power));
         return finalDamage;
     }
 
-    public void KillPlayer()
+    public void KillPlayer(Player? playerSource=null)
     {
         game.LeaveAlliance(this);
         
@@ -78,7 +81,10 @@ public class Player(User user, Game game)
         {
             Items[i] = null;
         }
+        events.SendEvent(new PlayerKilledEvent(playerSource,this));
+        events.SendEvent(new PlayerInventoryUpdateEvent(this));
         Stats.UpdateFromItems(Items!);
+        
     }
     
 }

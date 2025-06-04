@@ -1,5 +1,7 @@
 using wumpapi.game;
+using wumpapi.game.events;
 using wumpapi.neo4j;
+using wumpapi.services;
 using wumpapi.structures;
 using wumpapi.utils;
 
@@ -17,15 +19,15 @@ public class GameManager : IGameManager
         this.logger = logger;
     }
     
-    public async Task Startup(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry)
+    public async Task Startup(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry, IEventManager eventManager)
     {
         bool hasSaveData = await dataAccess.ExecuteReadScalarAsync<int>(@"MATCH (n:Data) RETURN count(n)") == 1;
         var saveData = hasSaveData ? (await dataAccess.ExecuteReadDictionaryAsync(@"MATCH (n:Data) RETURN n {State: n.State, SavedAlliances:n.SavedAlliances} LIMIT 1","n")).FirstOrDefault()!.DictToObject<GameSaveData>() : new GameSaveData(GameState.Waiting, new List<string>());
-        currentGame = new Game(saveData, logger);
+        currentGame = new Game(saveData, logger, eventManager);
         List<Player> players = new List<Player>();
         foreach (var playerData in await dataAccess.ExecuteReadDictionaryAsync(@"MATCH (n:Player) RETURN n {Username:n.Username, Items: n.Items, Alliance: n.Alliance}", "n"))
         {
-            players.Add(playerData.DictToObject<PlayerData>().ToPlayer(currentGame, userRepository, itemRegistry));
+            players.Add(playerData.DictToObject<PlayerData>().ToPlayer(currentGame, userRepository, itemRegistry,eventManager));
         }
         currentGame.AddSavedPlayers(players);
 
@@ -84,14 +86,15 @@ public class GameManager : IGameManager
         return currentGame?.State;
     }
 
-    public Player AddPlayer(User user)
+    public Player? AddPlayer(User user, IEventManager eventManager)
     {
         if (currentGame == null) return null;
         if (currentGame.GetPlayer(user) != null)
         {
             return currentGame.GetPlayer(user)!;
         }
-        Player player = new Player(user, currentGame);
+        Player player = new Player(user, currentGame, eventManager);
+        eventManager.SendEvent(new PlayerJoinEvent(player));
         currentGame.AddPlayer(player);
         return player;
     }

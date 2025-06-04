@@ -15,7 +15,7 @@ namespace wumpapi.game.Items.genericitems;
 /// <param name="cooldown"></param>
 /// <param name="onUse"></param>
 public class Weapon(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] requirements, string[] conflicts, float cooldown, Weapon.UseDelegate onUse)
-    : TargetableItem(name, id, classType, description, price, buildTime, requirements, conflicts, cooldown, onUse)
+    : NegativeTargetableItem(name, id, classType, description, price, buildTime, requirements, conflicts, cooldown, onUse)
 {
     private UseDelegate onUse = onUse;
     private float baseWeaponCooldown = cooldown;

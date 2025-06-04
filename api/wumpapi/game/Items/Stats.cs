@@ -14,10 +14,9 @@ public class Stats
             CurrentStats.Add(stat.Key, stat.Value);
         }
     }
-    
-    public static readonly Dictionary<StatType, float> BaseStats = new()
+
+    private static readonly Dictionary<StatType, float> BaseStats = new()
     {
-        { StatType.Power, 1},
         { StatType.MaxPower, 5 },
         { StatType.PowerGenerationAmount, 1 },
         { StatType.DamageResistance, 0.1f },
@@ -28,13 +27,18 @@ public class Stats
         { StatType.WeaponCooldownReduction, 0 },
         { StatType.PowerGenerationPeriod, 15 }
     };
+    public int Power { get; set; }
     public Dictionary<StatType, float> CurrentStats { get; private set; }
     
 
-    public void UpdateFromItems(IItem[] items)
+    public void UpdateFromItems(IItem?[] items)
     {
-        foreach (IItem item in items)
+        foreach (IItem? item in items)
         {
+            if (item == null)
+            {
+                continue;
+            }
             List<StatModifier> buffs = new();
             if (item is IStatModifyingItem modifyingItem)
             {
@@ -66,9 +70,6 @@ public class Stats
                 newStats[stat.Key] = stat.Value * newStatsMultiply[stat.Key];
             }
             
-            // Kind of hacky, just get it working though
-            newStats[StatType.Power] = CurrentStats[StatType.Power];
-            
             CurrentStats = new Dictionary<StatType, float>(newStats);
         }
     }
@@ -92,7 +93,6 @@ public enum StatModifierType
 public enum StatType
 {
     MaxPower,
-    Power,
     PowerGenerationAmount,
     DamageResistance,
     DamageShare,

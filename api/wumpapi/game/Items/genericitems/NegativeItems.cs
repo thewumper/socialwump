@@ -1,0 +1,8 @@
+using wumpapi.game.Items.interfaces;
+
+namespace wumpapi.game.Items.genericitems;
+
+public class NegativeConsumableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] requirements, string[] conflicts, float cooldown, UsableItem.UseDelegate onUse, int maxUses) : ConsumableItem(name, id, classType, description, price, buildTime, requirements, conflicts, cooldown, onUse, maxUses), INegativeItem;
+public class NegativeTargetedConsumableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements, float cooldown, TargetableItem.UseDelegate onUse, int maxUses) : TargetedConsumableItem(name, id, classType, description, price, buildTime, conflicts, requirements, cooldown, onUse, maxUses), INegativeItem;
+public class NegativeTargetableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] requirements, string[] conflicts, float cooldown, TargetableItem.UseDelegate onUse) : TargetableItem(name, id, classType, description, price, buildTime, requirements, conflicts, cooldown, onUse), INegativeItem;
+public class NegativeUsableItem(string name, string id, ItemClassType classType, string description, int price, int buildTime, string[] conflicts, string[] requirements, float cooldown, UsableItem.UseDelegate onUse) : UsableItem(name, id, classType, description, price, buildTime, conflicts, requirements, cooldown, onUse), INegativeItem;

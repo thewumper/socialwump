@@ -60,3 +60,10 @@ Content-Type: application/json
 {
   "SessionToken": "549d31c7-7e81-488d-9b23-5a872bb0d984"
 }
+###
+POST {{wumpapi_HostAddress}}/events
+Content-Type: application/json
+
+{
+    "LastTime" : 100000
+}
