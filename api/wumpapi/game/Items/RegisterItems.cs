@@ -1,4 +1,5 @@
 using wumpapi.game.Items.genericitems;
+using wumpapi.game.Items.interfaces;
 using wumpapi.Services;
 
 namespace wumpapi.game.Items;

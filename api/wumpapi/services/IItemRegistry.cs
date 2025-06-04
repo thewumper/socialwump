@@ -6,8 +6,10 @@ namespace wumpapi.Services;
 /// </summary>
 public interface IItemRegistry
 {
-    void RegisterItem(IItem item);
+    IItem RegisterItem(IItem item);
     IItem? Parse(string itemid);
-    List<IItem> GetItems();
-    IItem GetItem(string itemid);
+    List<IItem> GetItems(); 
+    void AddToWin(IItem itemid);
+    bool Wins(IItem[] itemid);
+    bool IsWinItem(IItem itemid);
 }

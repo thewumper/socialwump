@@ -1,3 +1,7 @@
+using wumpapi.neo4j;
+using wumpapi.services;
+using wumpapi.Services;
+
 namespace wumpapi.utils;
 /// <summary>
 /// Basic utilities
@@ -18,7 +22,21 @@ public static class Utils
             }
         }, TaskScheduler.Default);
     }
-    
+    public delegate T ScopedServiceAccessor<out T>(IServiceProvider serviceProvider);
+    public static async Task<T> ScopedServiceAccess<T>(WebApplication application, ScopedServiceAccessor<T> scopedServiceAccessor)
+    {
+        var scope = application.Services.CreateAsyncScope();
+        T result;
+        try
+        {
+            result = scopedServiceAccessor(scope.ServiceProvider);
+        }
+        finally
+        {
+            await scope.DisposeAsync();
+        }
+        return result;
+    }
     
     
     /// <summary>

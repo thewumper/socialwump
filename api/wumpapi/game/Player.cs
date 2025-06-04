@@ -40,7 +40,7 @@ public class Player(User user, Game game, IEventManager events)
         float totalDamageSharePercentage = 0.0f;
         if (currentAlliance != null)
         {
-            foreach (Player player in currentAlliance.Users)
+            foreach (Player player in currentAlliance.Players)
             {
                 float playerDamageShare = player.Stats.CurrentStats[StatType.DamageShare];
 

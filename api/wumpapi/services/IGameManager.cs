@@ -9,12 +9,12 @@ namespace wumpapi.Services;
 /// </summary>
 public interface IGameManager
 {
-    public Task Startup(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry, IEventManager eventManager);
-    public void AutoSave(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry);
-    public void Shutdown(INeo4jDataAccess dataAccess, IUserRepository userRepository, IItemRegistry itemRegistry);
+    public Task Startup(INeo4jDataAccess dataAccess, IUserRepository userRepository);
+    public void AutoSave(INeo4jDataAccess dataAccess, IUserRepository userRepository);
+    public void Shutdown(INeo4jDataAccess dataAccess, IUserRepository userRepository);
     public Game GetActiveGame();
     public GameState? GetGameState();
-    public Player? AddPlayer(User user, IEventManager eventManager);
+    public Player? AddPlayer(User user);
     Game? GetCurrentGame();
 }
 

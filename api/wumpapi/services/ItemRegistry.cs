@@ -9,23 +9,37 @@ namespace wumpapi.Services;
 /// </summary>
 public class ItemRegistry : IItemRegistry
 {
-    readonly Dictionary<string, IItem> items = new();
-    public void RegisterItem(IItem item)
+    readonly Dictionary<string, IItem> registeredItems = new();
+    readonly HashSet<string> winIds = new();
+    public IItem RegisterItem(IItem item)
     {
-        items.Add(item.Id, item);
+        registeredItems.Add(item.Id, item);
+        return item;
     }
     public IItem? Parse(string itemid)
     {
-        return items.TryGetValue(itemid, out var item) ? DeepCopyUtils.DeepCopy(item) : null;
+        return registeredItems.TryGetValue(itemid, out var item) ? DeepCopyUtils.DeepCopy(item) : null;
     }
 
     public List<IItem> GetItems()
     {
-        return items.Values.ToList();
+        return registeredItems.Values.ToList();
     }
 
-    public IItem GetItem(string itemid)
+    
+    public void AddToWin(IItem item)
     {
-        return items[itemid];
+        winIds.Add(item.Id);
+    }
+
+    public bool Wins(IItem[] items)
+    {
+        if (items.Length != winIds.Count) return false;
+        return items.All(item => winIds.Contains(item.Id));
+    }
+
+    public bool IsWinItem(IItem item)
+    {
+        return winIds.Contains(item.Id);
     }
 }

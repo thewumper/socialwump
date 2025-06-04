@@ -6,10 +6,10 @@ namespace wumpapi.game;
 /// <param name="name"></param>
 public class Alliance(string name)
 {
-    private readonly HashSet<Player> users = new();
+    private readonly HashSet<Player> players = new();
 
     
-    public HashSet<Player> Users => users;
+    public HashSet<Player> Players => players;
     
     public string GetName()
     {
@@ -18,13 +18,13 @@ public class Alliance(string name)
 
     public void AddPlayer(Player user)
     {
-        users.Add(user);
+        players.Add(user);
         user.AllianceName = name;
     }
 
     public void RemovePlayer(Player user)
     {
-        users.Remove(user);
+        players.Remove(user);
         user.AllianceName = null;
     }
 }

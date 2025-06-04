@@ -1,5 +1,6 @@
 using wumpapi.game.events;
 using wumpapi.game.Items;
+using wumpapi.game.Items.genericitems;
 using wumpapi.services;
 using wumpapi.Services;
 using wumpapi.structures;
@@ -12,11 +13,13 @@ namespace wumpapi.game;
 public class Game
 {
     private ILogger logger;
-    private IEventManager events;
-    public Game(GameSaveData saveData, ILogger logger, IEventManager events)
+    private readonly IEventManager events;
+    private readonly IItemRegistry itemRegistry;
+    public Game(GameSaveData saveData, ILogger logger, IEventManager events, IItemRegistry itemRegistry)
     {
         this.logger = logger;
         this.events = events;
+        this.itemRegistry = itemRegistry;
         State = saveData.State;
         foreach (var allianceName in saveData.SavedAlliances)
         {
@@ -32,7 +35,6 @@ public class Game
 
     public void Start()
     {
-        events.SendEvent(new GameStartedEvent());
         State = GameState.Active;
         
         foreach (Player player in players.Values)
@@ -56,8 +58,34 @@ public class Game
             playerUpdaters.Add(updater);
             updater.Start();
         }
+        events.Subscribe<PlayerFinishMakingItemEvent>(CheckIfTeamWon);
+        events.SendEvent(new GameStartedEvent());
     }
 
+    void CheckIfTeamWon(PlayerFinishMakingItemEvent e)
+    {
+        if (!itemRegistry.IsWinItem(e.Item)) return;
+        Alliance alliance = alliancePlayers[e.Player];
+        List<IItem> winItemsInAlliance = [];
+        foreach (Player player in alliance.Players)
+        {
+            foreach (IItem? playerItem in player.Items)
+            {
+                if (playerItem == null) continue;
+                if (itemRegistry.IsWinItem(playerItem))
+                {
+                    winItemsInAlliance.Add(playerItem);
+                }
+            }
+        }
+
+        if (itemRegistry.Wins(winItemsInAlliance.ToArray()))
+        {
+            events.SendEvent(new AllianceWinEvent(alliance)); //
+        }
+
+    }
+    
     public int WaitingPlayers()
     {
         return players.Count;
@@ -72,7 +100,6 @@ public class Game
     public void AddPlayer(Player player)
     {
         players.Add(player.User, player);
-        State = GameState.Waiting;
         if (players.Count >= Constants.MinimumPlayers)
         {
             Utils.RunAfterDelay(() =>
@@ -127,12 +154,13 @@ public class Game
         Alliance? joined = null;
         foreach (Alliance alliance in alliances)
         {
-            if (alliance.Users.Contains(joiner))
+            if (alliance.Players.Contains(joiner))
             {
                 alliance.RemovePlayer(joiner);
             }
             if (alliance.GetName() == name)
             {
+                alliancePlayers[joiner] = alliance;
                 alliance.AddPlayer(joiner); 
                 joined = alliance;
             }
@@ -148,6 +176,7 @@ public class Game
             if (alliance.GetName() == player.AllianceName)
             {
                 alliance.RemovePlayer(player);
+                alliancePlayers.Remove(player);
                 return alliance;
             }
         }
