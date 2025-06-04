@@ -97,7 +97,7 @@ public class Webapp
         app.MapPost("/leavealliance", LeaveAllianceHandler).WithName("LeaveAlliance");
         app.MapPost("/useability", UseAbilityHandler).WithName("UseAbility");
         app.MapPost("/purchasefromshop", ShopPurchaseHandler).WithName("PurchaseFromShop");
-        app.MapPost("/sellItem", SellItemHandler).WithName("SellItemHandler");
+        app.MapPost("/sellitem", SellItemHandler).WithName("SellItemHandler");
         app.MapPost("/getplayer", GetPlayerHandler).WithName("GetPlayer");
         app.MapPost("/sharepower", PowerShareHandler).WithName("SharePower");
         app.MapPost("/shareitem", ItemShareHandler).WithName("ShareItem");
