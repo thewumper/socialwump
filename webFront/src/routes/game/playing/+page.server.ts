@@ -24,8 +24,10 @@ export async function load({ locals, fetch }) {
 	const splitItems = splitByClassType(json);
 
 	let playerJoined = false;
+	let player;
+	let inGame;
 	if (locals.sessionID) {
-		const playerInfo = await fetch('/game/', {
+		const playerInfo = await fetch(`http://${API_URL_PREFIX}/getplayer/`, {
 			method: 'POST',
 			body: JSON.stringify({
 				SessionToken: locals.sessionID
@@ -34,12 +36,23 @@ export async function load({ locals, fetch }) {
 				'Content-Type': 'application/json'
 			}
 		});
-		const json = await playerInfo.json();
+			console.log(await playerInfo.status)
+			console.log(await playerInfo.body)
+			if (await playerInfo.body){
+				playerJoined = true;
+				player = (await playerInfo.json());
+				console.log(player)
+			}
+			else {
+				playerJoined = false;
+				player = null;
+			}
 	}
 
 	return {
 		playerJoined: playerJoined,
 		user: locals.user,
-		shopItems: splitItems
+		shopItems: splitItems,
+		player: player,
 	};
 }
