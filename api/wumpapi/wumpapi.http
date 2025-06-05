@@ -75,5 +75,5 @@ POST {{wumpapi_HostAddress}}/joingame
 Content-Type: application/json
 
 {
-  
+  "SessionToken" : "ce56cbbb-b4c7-4e48-887a-892cbd46f716"
 }

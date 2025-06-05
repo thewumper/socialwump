@@ -23,6 +23,13 @@ services:
       - "42069:8080"
     networks:
       - wumpnet
+  wumpfront:
+    image: maximummaxx/wumpfront:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - wumpnet
 networks:
   wumpnet:
     
