@@ -31,6 +31,8 @@
 	let nodes;
 	let links;
 	let mainGroup;
+	let linksGroup;
+	let nodesGroup;
 
 	let minimizeJoinGameButtonBox = $state();
 	let joinGameModalOpen = $state(true);
@@ -168,21 +170,22 @@
 	}
 
 	function updateSimulation() {
-		if (!simulation) return;
-
 		// Update the simulation forces with new data
-		simulation.nodes(workingData.nodes);
-		simulation.force('link').links(workingData.links);
+		simulation.nodes(simulationData.nodes);
+		simulation.force('link').links(simulationData.links);
 
 		// Restart the simulation with a lower alpha to make it converge faster
 		simulation.alpha(0.3).restart();
 	}
 
+	function initializeGraph() {
+		linksGroup = mainGroup.append('g').attr('class', 'links');
+		nodesGroup = mainGroup.append('g').attr('class', 'nodes');
+	}
+
 	function renderGraph() {
 		// Create links
-		links = mainGroup
-			.append('g')
-			.attr('class', 'links')
+		links = linksGroup
 			.selectAll('line')
 			.data(simulationData.links)
 			.join('line')
@@ -190,9 +193,7 @@
 			.style('stroke', '#aaa');
 
 		// Create nodes
-		nodes = mainGroup
-			.append('g')
-			.attr('class', 'nodes')
+		nodes = nodesGroup
 			.selectAll('circle')
 			.data(simulationData.nodes)
 			.join('circle')
@@ -233,6 +234,7 @@
 		screenWidth = window.innerWidth;
 		setupCrosshair();
 		await loadDataFromServer();
+		initializeGraph();
 		renderGraph();
 		setupSimulation();
 	});

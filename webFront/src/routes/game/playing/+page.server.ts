@@ -36,17 +36,22 @@ export async function load({ locals, fetch }) {
 				'Content-Type': 'application/json'
 			}
 		});
-			console.log(await playerInfo.status)
-			console.log(await playerInfo.body)
-			if (await playerInfo.body){
-				playerJoined = true;
-				player = (await playerInfo.json());
-				console.log(player)
-			}
-			else {
-				playerJoined = false;
-				player = null;
-			}
+		console.log(await playerInfo.status);
+		console.log(await playerInfo.body);
+		if (await playerInfo.body) {
+			playerJoined = true;
+			player = await playerInfo.json();
+			console.log(player);
+		} else {
+			playerJoined = false;
+			player = null;
+		}
 	}
 
+	return {
+		playerJoined: playerJoined,
+		user: locals.user,
+		shopItems: splitItems,
+		player: player
+	};
 }
