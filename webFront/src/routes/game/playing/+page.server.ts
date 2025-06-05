@@ -1,3 +1,4 @@
+import { API_URL_PREFIX } from '$env/static/private';
 import { redirect } from '@sveltejs/kit';
 
 function splitByClassType(items) {
@@ -11,7 +12,7 @@ function splitByClassType(items) {
 	}, {});
 }
 export async function load({ locals, fetch }) {
-	const users = await fetch('http://wumpapi:8080/gamestate'); // Replace with your actual data source
+	const users = await fetch(`http://${API_URL_PREFIX}/gamestate`); // Replace with your actual data source
 
 	if ((await users.json()) === 'Waiting') {
 		return redirect(303, '/game/waiting');
@@ -22,8 +23,22 @@ export async function load({ locals, fetch }) {
 
 	const splitItems = splitByClassType(json);
 
+	let playerJoined = false;
+	if (locals.sessionID) {
+		const playerInfo = await fetch('/game/shop/getitemlist', {
+			method: 'POST',
+			body: JSON.stringify({
+				SessionToken: locals.sessionID
+			}),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const json = await playerInfo.json();
+	}
+
 	return {
-		playerJoined: false,
+		playerJoined: playerJoined,
 		user: locals.user,
 		shopItems: splitItems
 	};

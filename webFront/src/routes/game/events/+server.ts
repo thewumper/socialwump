@@ -1,3 +1,4 @@
+import { API_URL_PREFIX } from '$env/static/private';
 import { produce } from 'sveltekit-sse';
 
 function delay(milliseconds: number) {
@@ -8,7 +9,7 @@ function delay(milliseconds: number) {
 
 async function getEvents(lastEvent: number) {
 	// Testhing things for atticus
-	const events = await fetch('http://wumpapi:8080/events', {
+	const events = await fetch(`http://${API_URL_PREFIX}/events`, {
 		method: 'POST',
 		body: JSON.stringify({
 			LastEvent: lastEvent
