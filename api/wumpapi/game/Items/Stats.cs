@@ -9,6 +9,7 @@ public class Stats
     public Stats()
     {
         CurrentStats = new Dictionary<StatType, float>();
+        Power = 1;
         foreach (var stat in BaseStats)
         {
             CurrentStats.Add(stat.Key, stat.Value);

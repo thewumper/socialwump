@@ -8,7 +8,7 @@ namespace wumpapi.services;
 public class EventManager : IEventManager
 {
     private List<IEvent> events = new List<IEvent>();
-    private Dictionary<Type, List<EventListener<IEvent>>> subscribed = new();
+    private readonly Dictionary<Type, List<EventListener<IEvent>>> subscribed = new();
     public List<IEvent> GetEvents(long since)
     {
         return events.Where(e => e.InitiatedAt > since).ToList();
@@ -16,11 +16,8 @@ public class EventManager : IEventManager
     
     public void SendEvent(IEvent @event)
     {
-        Console.WriteLine($"Calling event");
-        Console.WriteLine($"Event {@event.GetType()}");
         if (subscribed.ContainsKey(@event.GetType()))
         {
-            Console.WriteLine($"Event {@event.GetType().Name} is subscribed");
             foreach (EventListener<IEvent> listener in subscribed[@event.GetType()])
             {
                 listener(@event);
