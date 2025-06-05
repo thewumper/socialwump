@@ -7,12 +7,13 @@ namespace wumpapi.services;
 
 public class EventManager : IEventManager
 {
-    // Apparently this is a bst? hopefully it's faster or something
-    private SortedSet<IEvent> events = new(Comparer<IEvent>.Create((event1, event2) => Comparer.Default.Compare(event1.InitiatedAt, event2.InitiatedAt)));
+    private List<IEvent> events = new List<IEvent>();
     private Dictionary<Type, List<EventListener<IEvent>>> subscribed = new();
     public List<IEvent> GetEvents(long since)
     {
-        return events.GetViewBetween(new DummyEvent(since), new DummyEvent(long.MaxValue)).ToList();
+        Console.WriteLine($"Getting events for {since}");
+        Console.WriteLine($"Found {events.Count} events");
+        return events.Where(e => e.InitiatedAt > since).ToList();
     }
     
     public void SendEvent(IEvent @event)
@@ -25,6 +26,7 @@ public class EventManager : IEventManager
             }
         }
         events.Add(@event);
+        @event.InitiatedAt = events.Count;
     }
 
     public void Subscribe<T>(EventListener<T> callback) where T : IEvent
@@ -39,15 +41,4 @@ public class EventManager : IEventManager
             subscribed.Add(typeof(T), [wrapped]);
         }
     }
-}
-
-internal class DummyEvent : IEvent
-{
-    public DummyEvent(long initiatedAt)
-    {
-        InitiatedAt = initiatedAt;
-    }
-
-    public string Name { get; }
-    public long InitiatedAt { get; }
 }

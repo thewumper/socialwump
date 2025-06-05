@@ -15,6 +15,15 @@ public class Game
     private ILogger logger;
     private readonly IEventManager events;
     private readonly IItemRegistry itemRegistry;
+    private Graph graph;
+
+    public GameState State { get; set; }
+
+    private readonly Dictionary<User,Player> players = new();
+    readonly List<Alliance> alliances = new();
+    private readonly Dictionary<Player, Alliance> alliancePlayers = new();
+    private List<RepeatingVariableDelayExecutor> playerUpdaters = new();
+    private RepeatingVariableDelayExecutor graphUpdater;
     public Game(GameSaveData saveData, ILogger logger, IEventManager events, IItemRegistry itemRegistry)
     {
         this.logger = logger;
@@ -25,16 +34,22 @@ public class Game
         {
             alliances.Add(new Alliance(allianceName));
         }
+        graph = new Graph(players.Values.ToArray());
+        graphUpdater = new RepeatingVariableDelayExecutor(() =>
+        {
+            graph.TrimOldConnections().ForEach(events.SendEvent);
+            return Task.FromResult(TimeSpan.FromSeconds(1));
+        }, TimeSpan.FromSeconds(10), logger);
     }
-    public GameState State { get; set; }
 
-    private readonly Dictionary<User,Player> players = new();
-    readonly List<Alliance> alliances = new();
-    private readonly Dictionary<Player, Alliance> alliancePlayers = new();
-    private List<RepeatingVariableDelayExecutor> playerUpdaters = new();
 
     public void Start()
     {
+        if (State == GameState.Active)
+        {
+            logger.LogError("Game is already active, suppressing attempt");
+            return;
+        }
         State = GameState.Active;
         
         foreach (Player player in players.Values)
@@ -60,6 +75,19 @@ public class Game
         }
         events.Subscribe<PlayerFinishMakingItemEvent>(CheckIfTeamWon);
         events.SendEvent(new GameStartedEvent());
+        events.Subscribe((PlayerJoinEvent @event) =>
+        {
+            OnPlayerJoin(@event);
+        });
+        events.Subscribe((PlayerUseItemEvent @event) =>
+        {
+            OnPlayerUseItem(@event);
+        });
+    }
+
+    public void Stop()
+    {
+        
     }
 
     void CheckIfTeamWon(PlayerFinishMakingItemEvent e)
@@ -199,8 +227,21 @@ public class Game
         return players.Values.Select(p => p.ToPlayerData()).ToList();
     }
 
+    private void OnPlayerJoin(PlayerJoinEvent @event)
+    {
+        graph.AddNode(@event.Player).ForEach(e =>events.SendEvent(e));
+    }
+    
+    private void OnPlayerUseItem(PlayerUseItemEvent @event)
+    {
+        if (@event.Target == null) return;
+        graph.UpdateConnection(@event.Player, @event.Target, @event.IsPositive ? 1 : -1).ForEach(e =>events.SendEvent(e));
+    }
+    
+    
+    
     public Graph Graph()
     {
-        return new Graph(players.Values.ToArray());
+        return graph;
     }
 }

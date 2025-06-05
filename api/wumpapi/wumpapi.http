@@ -65,7 +65,7 @@ POST {{wumpapi_HostAddress}}/events
 Content-Type: application/json
 
 {
-    "LastTime" : 100000
+    "LastTime" : 0
 }
 ### 
 GET {{wumpapi_HostAddress}}/playersingame
