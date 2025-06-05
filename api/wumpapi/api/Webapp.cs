@@ -613,7 +613,17 @@ public class Webapp
         {
             return Results.BadRequest("Session token cannot be null");
         }
-        return Results.Ok(sessionManager.IsSessionValid(request.SessionToken) ? new ValidateAuthResponse(true, sessionManager.GetAuthedUser(request.SessionToken)) : new ValidateAuthResponse(false, null));
+
+        try
+        {
+            return Results.Ok(sessionManager.IsSessionValid(request.SessionToken)
+                ? new ValidateAuthResponse(true, sessionManager.GetAuthedUser(request.SessionToken))
+                : new ValidateAuthResponse(false, null));
+        }
+        catch (SessionExpiredException e)
+        {
+            return Results.Ok(new ValidateAuthResponse(false, null));
+        }
     }
 
     private async Task DropDatabase(INeo4jDataAccess neo4JDataAccess)
