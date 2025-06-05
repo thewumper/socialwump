@@ -31,12 +31,15 @@ export function POST() {
 		while (true) {
 			await delay(1000);
 
-			const newestEvents = await getEvents(lastEventNumber + 1);
+			// console.log('----------------------------');
+			const newestEvents = await getEvents(lastEventNumber);
+			// console.log('----------------------------');
+
 			if (newestEvents.length === 0) {
 				continue;
 			} else {
 				newestEvents.forEach((event) => {
-					console.log(event);
+					if (event.name !== 'PlayerUpdatePowerEvent') console.log(event);
 					lastEventNumber = event.initiatedAt;
 					const { error } = emit(event.name, JSON.stringify(event));
 					if (error) {

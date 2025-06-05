@@ -40,10 +40,22 @@
 	hasPlayerJoinedGame = PageData.playerJoined;
 
 	const userPowerLevel = $state({ power: 5 });
-	const value = source('/game/events/').select('message');
+	const playerJoin = source('/game/events/').select('GraphAddNodeEvent');
 
-	value.subscribe((value) => {
-		console.log(value);
+	playerJoin.subscribe((playerJoin) => {
+		if (playerJoin !== '') {
+			const objectObjectObject = JSON.parse(playerJoin);
+			console.log(objectObjectObject);
+
+			const newNode = {
+				id: objectObjectObject.node.id,
+				player: objectObjectObject.node.player
+			};
+			simulationData.nodes = [...simulationData.nodes, newNode];
+			// Re-render and update simulation
+			renderGraph();
+			updateSimulation();
+		}
 	});
 
 	// Change the crosshair display mode when the selected node state changes

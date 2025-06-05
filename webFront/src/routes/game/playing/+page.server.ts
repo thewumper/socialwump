@@ -49,10 +49,4 @@ export async function load({ locals, fetch }) {
 			}
 	}
 
-	return {
-		playerJoined: playerJoined,
-		user: locals.user,
-		shopItems: splitItems,
-		player: player,
-	};
 }
