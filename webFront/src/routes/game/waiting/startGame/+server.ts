@@ -1,7 +1,7 @@
 export async function POST({ locals, request, fetch }) {
 	// Logic to fetch users (e.g., from a database)
 
-	const join = await fetch('http://127.0.0.1:42069/startgame', {
+	const join = await fetch('http://wumpapi:8080/startgame', {
 		method: 'POST',
 		body: JSON.stringify({
 			SessionToken: locals.sessionID

@@ -11,10 +11,10 @@ function splitByClassType(items) {
 	}, {});
 }
 export async function load({ locals, fetch }) {
-	const users = await fetch('http://127.0.0.1:42069/gamestate'); // Replace with your actual data source
+	const users = await fetch('http://wumpapi:8080/gamestate'); // Replace with your actual data source
 
 	if ((await users.json()) === 'Waiting') {
-		return redirect(303, '/waiting');
+		return redirect(303, '/game/waiting');
 	}
 
 	const shopinforesp = await fetch('/game/shop/getitemlist');
@@ -23,6 +23,7 @@ export async function load({ locals, fetch }) {
 	const splitItems = splitByClassType(json);
 
 	return {
+		playerJoined: false,
 		user: locals.user,
 		shopItems: splitItems
 	};

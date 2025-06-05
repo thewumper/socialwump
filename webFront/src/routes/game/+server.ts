@@ -11,11 +11,9 @@ export async function GET({ fetch }) {
 		gameStarted = true;
 	}
 
-	console.log('HI');
-
 	if (gameStarted) {
 		return redirect(303, '/game/playing');
 	} else {
-		return redirect(303, '/account/waiting');
+		return redirect(303, '/game/waiting');
 	}
 }

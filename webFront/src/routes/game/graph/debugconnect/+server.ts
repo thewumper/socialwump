@@ -5,7 +5,7 @@ export async function POST({ locals, request, fetch }) {
 
 	const data = formdata.get('targetUser');
 
-	const users = await fetch('http://127.0.0.1:42069/createRelationship', {
+	const users = await fetch('http://wumpapi:8080/createRelationship', {
 		method: 'POST',
 		body: JSON.stringify({
 			SessionToken: locals.sessionID,

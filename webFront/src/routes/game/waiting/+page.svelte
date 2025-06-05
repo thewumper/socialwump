@@ -32,7 +32,7 @@
 		<span class="text-4xl font-bold">{playerCount}/{requiredCount}</span>
 	</div>
 
-	<form action="/waiting/joinGame" method="POST" use:enhance>
+	<form action="/game/waiting/joinGame" method="POST" use:enhance>
 		<button
 			type="submit"
 			class="rounded-sm bg-zinc-700 p-1.5 hover:bg-zinc-600 active:bg-zinc-800"
