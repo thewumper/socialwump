@@ -1,4 +1,7 @@
+import { API_URL_PREFIX } from '$env/static/private';
 import { fail, redirect } from '@sveltejs/kit';
+
+const { MODE } = import.meta.env;
 
 export const actions = {
 	default: async ({ cookies, request }) => {
@@ -7,7 +10,7 @@ export const actions = {
 		const code = data.get('code');
 		const email = data.get('email');
 
-		const authStatus = await fetch('http://wumpapi:8080/createaccount', {
+		const authStatus = await fetch(`http://${API_URL_PREFIX}/createaccount`, {
 			method: 'POST',
 			body: JSON.stringify({
 				Username: username,
@@ -28,7 +31,7 @@ export const actions = {
 			return fail(400, { email, message: json.message });
 		}
 
-		const loginRequest = await fetch('http://wumpapi:8080/login', {
+		const loginRequest = await fetch(`http://${API_URL_PREFIX}/login`, {
 			method: 'POST',
 			body: JSON.stringify({
 				Username: username,
@@ -47,7 +50,7 @@ export const actions = {
 		const json = await loginRequest.json();
 
 		// TODO! Don't ruin my security
-		cookies.set('sessionID', json.sessionToken, { path: '/', secure: false });
+		cookies.set('sessionID', json.sessionToken, { path: '/', secure: MODE === 'production' });
 
 		return redirect(303, '/');
 	}

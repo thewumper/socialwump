@@ -1,3 +1,4 @@
+import { API_URL_PREFIX } from '$env/static/private';
 import { redirect } from '@sveltejs/kit';
 
 export async function GET({ cookies }) {
@@ -7,7 +8,7 @@ export async function GET({ cookies }) {
 		return redirect(302, '/account/login');
 	}
 
-	const loginRequest = await fetch('http://wumpapi:8080/logout', {
+	const loginRequest = await fetch(`http://${API_URL_PREFIX}/logout`, {
 		method: 'POST',
 		body: JSON.stringify({
 			SessionToken: currentToken

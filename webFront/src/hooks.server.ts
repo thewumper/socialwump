@@ -1,4 +1,5 @@
 import { error, redirect } from '@sveltejs/kit';
+import { API_URL_PREFIX } from '$env/static/private';
 
 export const handle = async ({ event, resolve }) => {
 	const requestedPath = event.url.pathname;
@@ -13,7 +14,7 @@ export const handle = async ({ event, resolve }) => {
 	let authStatus;
 	// If they don't have a token they are definately not authed
 	if (currentToken) {
-		authStatus = await event.fetch('http://wumpapi:8080/validateauth', {
+		authStatus = await event.fetch(`http://${API_URL_PREFIX}/validateauth`, {
 			method: 'POST',
 			body: JSON.stringify({
 				sessiontoken: currentToken
