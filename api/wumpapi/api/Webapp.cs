@@ -109,7 +109,7 @@ public class Webapp
 
     private IResult EventsHandler(IEventManager eventManager,[FromBody] EventRequest request)
     {
-        return Results.Ok(eventManager.GetEvents(request.lastEvent).Select(r => (object)r).ToList());
+        return Results.Ok(eventManager.GetEvents(request.LastEvent).Select(r => (object)r).ToList());
     }
 
     private async Task<IResult> ItemShareHandler(ISessionManager sessionManager, IUserRepository userRepository, [FromServices] IGameManager gameManger, IEventManager events, [FromBody] ItemShareRequest request)

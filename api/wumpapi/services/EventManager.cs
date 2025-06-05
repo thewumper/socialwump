@@ -11,15 +11,16 @@ public class EventManager : IEventManager
     private Dictionary<Type, List<EventListener<IEvent>>> subscribed = new();
     public List<IEvent> GetEvents(long since)
     {
-        Console.WriteLine($"Getting events for {since}");
-        Console.WriteLine($"Found {events.Count} events");
         return events.Where(e => e.InitiatedAt > since).ToList();
     }
     
     public void SendEvent(IEvent @event)
     {
+        Console.WriteLine($"Calling event");
+        Console.WriteLine($"Event {@event.GetType()}");
         if (subscribed.ContainsKey(@event.GetType()))
         {
+            Console.WriteLine($"Event {@event.GetType().Name} is subscribed");
             foreach (EventListener<IEvent> listener in subscribed[@event.GetType()])
             {
                 listener(@event);
