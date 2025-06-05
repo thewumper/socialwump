@@ -109,7 +109,7 @@ public class Webapp
 
     private IResult EventsHandler(IEventManager eventManager,[FromBody] EventRequest request)
     {
-        return Results.Ok(eventManager.GetEvents(request.lastEvent));
+        return Results.Ok(eventManager.GetEvents(request.lastEvent).Select(r => (object)r).ToList());
     }
 
     private async Task<IResult> ItemShareHandler(ISessionManager sessionManager, IUserRepository userRepository, [FromServices] IGameManager gameManger, IEventManager events, [FromBody] ItemShareRequest request)
@@ -604,7 +604,7 @@ public class Webapp
 
     private IResult ItemInfoHandler(IItemRegistry itemRegistry)
     {
-        return Results.Ok(itemRegistry.GetItems());
+        return Results.Ok(itemRegistry.GetItems().Select(e => (object)e).ToList());
     }
 
     private IResult ValidateAuthHandler(ISessionManager sessionManager, [FromBody] ValidateAuthRequest request)

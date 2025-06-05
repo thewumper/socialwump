@@ -20,8 +20,14 @@ public class GameManager : IGameManager
         this.logger = logger;
         this.eventManager = eventManager;
         this.itemRegistry = itemRegistry;
+        eventManager.SendEvent(new TestEvent("Woot woot I test data"));
     }
-    
+
+    private class TestEvent(string message) : Event
+    {
+        public string Message { get; } = message;
+    }
+
     public async Task Startup(INeo4jDataAccess dataAccess, IUserRepository userRepository)
     {
         bool hasSaveData = await dataAccess.ExecuteReadScalarAsync<int>(@"MATCH (n:Data) RETURN count(n)") == 1;

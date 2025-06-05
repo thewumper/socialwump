@@ -22,4 +22,4 @@ public class Graph
 
 public record GraphNode(int id, Player player);
 
-public record GraphLink(int source, int target, string name, string data);
+public record GraphLink(int source, int target, string name, int strength, long expiresAt);
