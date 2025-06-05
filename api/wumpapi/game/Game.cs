@@ -40,6 +40,14 @@ public class Game
             graph.TrimOldConnections().ForEach(events.SendEvent);
             return Task.FromResult(TimeSpan.FromSeconds(1));
         }, TimeSpan.FromSeconds(10), logger);
+        events.Subscribe((PlayerJoinEvent @event) =>
+        {
+            OnPlayerJoin(@event);
+        });
+        events.Subscribe((PlayerUseItemEvent @event) =>
+        {
+            OnPlayerUseItem(@event);
+        });
     }
 
 
@@ -75,14 +83,6 @@ public class Game
         }
         events.Subscribe<PlayerFinishMakingItemEvent>(CheckIfTeamWon);
         events.SendEvent(new GameStartedEvent());
-        events.Subscribe((PlayerJoinEvent @event) =>
-        {
-            OnPlayerJoin(@event);
-        });
-        events.Subscribe((PlayerUseItemEvent @event) =>
-        {
-            OnPlayerUseItem(@event);
-        });
     }
 
     public void Stop()
