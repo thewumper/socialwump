@@ -8,7 +8,7 @@ namespace wumpapi.services;
 public class EventManager : IEventManager
 {
     // Apparently this is a bst? hopefully it's faster or something
-    private SortedSet<IEvent> events = new(Comparer<IEvent>.Create((event1, event2) => Comparer.Default.Compare(event1, event2)));
+    private SortedSet<IEvent> events = new(Comparer<IEvent>.Create((event1, event2) => Comparer.Default.Compare(event1.InitiatedAt, event2.InitiatedAt)));
     private Dictionary<Type, List<EventListener<IEvent>>> subscribed = new();
     public List<IEvent> GetEvents(long since)
     {
