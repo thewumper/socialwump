@@ -1,6 +1,6 @@
 namespace wumpapi.services;
 
-public interface ILifecycleService
+public interface ILifecycleService : IHostedService
 {
     
 }

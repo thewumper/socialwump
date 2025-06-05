@@ -39,12 +39,12 @@ public class Game
         
         foreach (Player player in players.Values)
         {
-            RepeatingVariableDelayExecutor updater = new RepeatingVariableDelayExecutor(() =>
+            RepeatingVariableDelayExecutor updater = new RepeatingVariableDelayExecutor(Task<TimeSpan> () =>
             {
                 if (player.Stats.Power == 0)
                 {
                     // we are currently dead
-                    return TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]);
+                    return Task.FromResult(TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]));
                 }
                 player.Stats.Power += (int)float.Round(player.Stats.CurrentStats[StatType.PowerGenerationAmount]);
                 if (player.Stats.Power > player.Stats.CurrentStats[StatType.MaxPower])
@@ -53,7 +53,7 @@ public class Game
                 }
                 
                 events.SendEvent(new PlayerUpdatePowerEvent(player, player.Stats.Power));
-                return TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]);
+                return Task.FromResult(TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]));
             }, TimeSpan.FromSeconds(player.Stats.CurrentStats[StatType.PowerGenerationPeriod]), logger);
             playerUpdaters.Add(updater);
             updater.Start();
@@ -95,17 +95,21 @@ public class Game
     {
         return playerUpdaters;
     }
-    
-    
+
+    private bool isStarting = false;
     public void AddPlayer(Player player)
     {
+        
         players.Add(player.User, player);
-        if (players.Count >= Constants.MinimumPlayers)
+        if (players.Count >= Constants.MinimumPlayers && !isStarting)
         {
+            isStarting = true;
             Utils.RunAfterDelay(() =>
             {
                 if (players.Count >= Constants.MinimumPlayers)
                     Start();
+                isStarting = false;
+
             }, Constants.TimeBetweenGames ,logger);
         }
     }

@@ -6,11 +6,11 @@ namespace wumpapi.utils;
 /// <param name="initialDelay"></param>
 /// <param name="logger"></param>
 public class RepeatingVariableDelayExecutor(
-    RepeatingVariableDelayExecutor.DelayDelegate delayDelegate,
+    RepeatingVariableDelayExecutor.DelayDelegateAsync delayDelegate,
     TimeSpan initialDelay,
     ILogger logger)
 {
-    readonly DelayDelegate delayDelegate = delayDelegate;
+    readonly DelayDelegateAsync delayDelegate = delayDelegate;
     TimeSpan delay = initialDelay;
     readonly ILogger logger = logger;
     private CancellationTokenSource cts = new();
@@ -26,7 +26,7 @@ public class RepeatingVariableDelayExecutor(
             try
             {
                 await Task.Delay(delay, cts.Token);
-                delay = delayDelegate();
+                delay = await delayDelegate();
             }
             catch (OperationCanceledException)
             {
@@ -46,6 +46,5 @@ public class RepeatingVariableDelayExecutor(
         cts.Dispose();
         cts = new CancellationTokenSource();
     }
-    
-    public delegate TimeSpan DelayDelegate();
+    public delegate Task<TimeSpan> DelayDelegateAsync();
 }

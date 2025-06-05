@@ -67,3 +67,13 @@ Content-Type: application/json
 {
     "LastTime" : 100000
 }
+### 
+GET {{wumpapi_HostAddress}}/playersingame
+Content-Type: application/json
+###
+POST {{wumpapi_HostAddress}}/joingame
+Content-Type: application/json
+
+{
+  
+}

@@ -56,6 +56,8 @@ public class Webapp
         builder.Services.AddSingleton<IItemRegistry, ItemRegistry>();
         builder.Services.AddSingleton<IEventManager, EventManager>();
         builder.Services.AddSingleton<ILifecycleService, LifecycleService>();
+        builder.Services.AddHostedService(provider => 
+            provider.GetRequiredService<ILifecycleService>() as LifecycleService);
     }
     
     private void RegisterObjects()

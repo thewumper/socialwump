@@ -14,6 +14,7 @@ public class LifecycleService : ILifecycleService
     private readonly IServiceProvider serviceProvider;
     private readonly ILogger<LifecycleService> logger;
     private readonly IGameManager gameManager;
+    private readonly IHostApplicationLifetime lifetime;
     private RepeatingVariableDelayExecutor autosaver = null!;
 
     public LifecycleService(
@@ -25,9 +26,7 @@ public class LifecycleService : ILifecycleService
         this.logger = logger;
         this.gameManager = gameManager;
         this.serviceProvider = serviceProvider;
-        
-        lifetimeService.ApplicationStarted.Register(Startup);
-        lifetimeService.ApplicationStopped.Register(Shutdown);
+        lifetime = lifetimeService;
     }
 
     private async void Startup() 
@@ -35,15 +34,15 @@ public class LifecycleService : ILifecycleService
         try
         {
             logger.LogInformation("Starting game");
-            using var scope = serviceProvider.CreateScope();
+            await using var scope = serviceProvider.CreateAsyncScope();
             INeo4jDataAccess dataAccess = scope.ServiceProvider.GetRequiredService<INeo4jDataAccess>();
             IUserRepository userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
 
-            autosaver = new RepeatingVariableDelayExecutor(() => 
+            autosaver = new RepeatingVariableDelayExecutor(async Task<TimeSpan> () =>
             {
-                using var innerScope = serviceProvider.CreateScope();
-                INeo4jDataAccess da = innerScope.ServiceProvider.GetRequiredService<INeo4jDataAccess>();
-                IUserRepository ur = innerScope.ServiceProvider.GetRequiredService<IUserRepository>();
+                await using var innerScope = serviceProvider.CreateAsyncScope();
+                INeo4jDataAccess da = innerScope.ServiceProvider.GetRequiredService<INeo4jDataAccess>(); 
+                IUserRepository ur = innerScope.ServiceProvider.GetRequiredService<IUserRepository>(); 
                 gameManager.AutoSave(da, ur);
                 return TimeSpan.FromMinutes(1);
             }, TimeSpan.FromSeconds(10), logger);
@@ -56,13 +55,24 @@ public class LifecycleService : ILifecycleService
         }
     }
 
-    private void Shutdown()
+    private async Task Shutdown()
     {
-        using var scope = serviceProvider.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
         INeo4jDataAccess dataAccess = scope.ServiceProvider.GetRequiredService<INeo4jDataAccess>();
         IUserRepository userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
 
         autosaver?.Stop(); 
         gameManager.Shutdown(dataAccess, userRepository);
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        lifetime.ApplicationStarted.Register(Startup);
+        return Task.CompletedTask;
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await Shutdown();
     }
 }
