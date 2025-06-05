@@ -25,7 +25,7 @@ export async function load({ locals, fetch }) {
 
 	let playerJoined = false;
 	if (locals.sessionID) {
-		const playerInfo = await fetch('/game/shop/getitemlist', {
+		const playerInfo = await fetch('/game/', {
 			method: 'POST',
 			body: JSON.stringify({
 				SessionToken: locals.sessionID
