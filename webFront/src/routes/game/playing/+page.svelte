@@ -281,7 +281,7 @@
 								{#each PageData.shopItems[i] as item}
 									<div class="">
 										<form
-											action="/shop/buyitem"
+											action="/shop/buyitem/" + {item.itemId}
 											method="POST"
 											class="flex flex-col items-center rounded-sm border-2 border-zinc-300 bg-zinc-800 p-4 hover:bg-zinc-700"
 										>
@@ -299,7 +299,7 @@
 														<Hammer />
 														{item.buildTime}s
 														<Clock />
-														{item.cooldown ? item.cooldown : '-'}
+														{item.baseCooldown ? item.baseCooldown : '-'}
 													</span>
 													<span>{item.description}</span>
 													<!--  TODO! Format this nicelys -->

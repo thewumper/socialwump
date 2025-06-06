@@ -5,11 +5,8 @@ The api will be accessible on port 42069 (we are very mature, I know), and you c
 This is the backend of the game, and contains almost every endpoint that will be in the final project. It is basically complete
 The entrypoint is in [startup](api/Startup.cs)
 ## Features currently not implemented
- - Winning the game (it just goes on forever)
+ - Winning the game - game has a win condition, no game starts
  - Updating statistics (Endpoint not implemented yet, and no statistics are updated, but the infrastructure to manage statistics exists)
- - Items build instantly, instead of taking time
- - SSE not implemented, doing anything with the api requires polling
- - Giving items not implemented
  - Fees
 ## Features currently implemented on the backend
  - Creating accounts
@@ -21,5 +18,7 @@ The entrypoint is in [startup](api/Startup.cs)
  - Game starting/persistence
  - Alliance Management
  - Item usage
- - Graph data (sort of, no links between nodes)
+ - Item building
+ - Giving items
+ - Graph data
  - Everything in between to make all of these features work
