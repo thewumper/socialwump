@@ -33,6 +33,7 @@
 	let mainGroup;
 	let linksGroup;
 	let nodesGroup;
+	let currentPlayer;
 
 	let minimizeJoinGameButtonBox = $state();
 	let joinGameModalOpen = $state(true);
@@ -40,10 +41,14 @@
 	const { data: PageData } = $props();
 
 	hasPlayerJoinedGame = PageData.playerJoined;
+	currentPlayer = PageData.player.user;
 
-	const userPowerLevel = $state({ power: 5 });
+	const userPowerLevel = $state({ power: 0, maxPower: 5 });
+	if (PageData.playerJoined) {
+		userPowerLevel.power = PageData.player.stats.power;
+	}
+
 	const playerJoin = source('/game/events/').select('GraphAddNodeEvent');
-
 	playerJoin.subscribe((playerJoin) => {
 		if (playerJoin !== '') {
 			const objectObjectObject = JSON.parse(playerJoin);
@@ -57,6 +62,22 @@
 			// Re-render and update simulation
 			renderGraph();
 			updateSimulation();
+		}
+	});
+
+	const powerUpdate = source('/game/events/').select('PlayerUpdatePowerEvent');
+	powerUpdate.subscribe((playerJoin) => {
+		console.log('WE HAVE THE POWA');
+
+		console.log(playerJoin);
+		if (playerJoin !== '') {
+			const objectObjectObject = JSON.parse(playerJoin);
+			// console.log(objectObjectObject.player.user);
+			// console.log(currentPlayer);
+			if (objectObjectObject.player.user.username === currentPlayer.username) {
+				userPowerLevel.maxPower = objectObjectObject.player.stats.currentStats.maxPower;
+				userPowerLevel.power = objectObjectObject.player.stats.power;
+			}
 		}
 	});
 
@@ -119,14 +140,10 @@
 		nodes.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
 
 		if (selectedNode) {
-			console.log('NODE');
-			console.log(selectedNode.id);
 			// Pull the current position data from our normal dataset to set the position of the crosshair
 			const nodeData = simulationData.nodes.find((n) => {
-				console.log(n);
 				return n.id === selectedNode.id;
 			});
-			console.log(nodeData);
 			crosshairContainer
 				.attr('transform', `translate(${nodeData.x}, ${nodeData.y}) scale(2.25)`)
 				.style('display', 'block')
@@ -222,7 +239,7 @@
 	function joinGame() {
 		hasPlayerJoinedGame = true;
 
-		fetch('/game/waiting/joinGame', {
+		currentPlayer = fetch('/game/waiting/joinGame', {
 			method: 'POST'
 		});
 	}
@@ -253,7 +270,11 @@
 				class="pointer-events-none absolute bottom-2 left-1/2 h-10 w-11/12 max-w-4xl"
 				style="transform: translate(-50%,0);"
 			>
-				<Powerbar maxhealth="10" powerlevel={userPowerLevel.power} showNumber={true} />
+				<Powerbar
+					maxhealth={userPowerLevel.maxPower}
+					powerlevel={userPowerLevel.power}
+					showNumber={true}
+				/>
 			</div>
 			<div
 				class="pointer-events-auto absolute bottom-1/2 left-2"
